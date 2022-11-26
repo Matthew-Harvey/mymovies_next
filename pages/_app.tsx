@@ -3,7 +3,7 @@ import type { AppProps } from 'next/app';
 
 import { QueryClient, QueryClientProvider} from 'react-query';
 import Head from 'next/head';
-import Nav from '../comps/Nav';
+import Nav from './comps/Nav';
 const queryClient = new QueryClient();
 
 export default function App({ Component, pageProps }: AppProps) {
