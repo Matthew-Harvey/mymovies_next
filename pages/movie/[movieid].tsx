@@ -3,60 +3,120 @@
 export async function getServerSideProps({ query } : any) {
     // Fetch data from external API
     const movieid = query.movieid
-    const result = await fetch("https://api.themoviedb.org/3/movie/" + movieid + "?api_key=" + process.env.API_URL?.toString()).then((response) => response.json());
+    const main = await fetch("https://api.themoviedb.org/3/movie/" + movieid + "?api_key=" + process.env.API_URL?.toString()).then((response) => response.json());
+    const credits = await fetch("https://api.themoviedb.org/3/movie/" + movieid + "/credits?api_key=" + process.env.API_URL?.toString()).then((response) => response.json());
 
     // Pass data to the page via props
-    return { props: { result } }
+    return { props: { main, credits } }
 }
 
-export default function DisplayMovie( { result } : any) {
-    const backdrop_img = "url(https://image.tmdb.org/t/p/original" + result.backdrop_path + ")";
-    const poster_img = "https://image.tmdb.org/t/p/w500" + result.poster_path;
-    const tag = result.status + " " + result.release_date + " / " + result.runtime + " minutes / $" +  result.revenue;
+export default function DisplayMovie( { main, credits } : any) {
+    const baseimg = "https://image.tmdb.org/t/p/w500";
+    const backdrop_img = "url(https://image.tmdb.org/t/p/original" + main.backdrop_path + ")";
+    const poster_img = baseimg + main.poster_path;
+    const imdblink = "https://www.imdb.com/title/" + main.imdb_id;
+    const revtotal = "$" + new Intl.NumberFormat('en-US').format(main.revenue);
+    const tag = main.status + " " + main.release_date + " / " + main.runtime + " minutes / " +  revtotal;
+
+    const genre_list = 
+        <div className="flex container items-center flex-row py-4">
+            {main.genres.map((genre: { id: string; name: string; }) =>
+                <div key={genre.id} className="p-1">
+                    <span className="z-10 p-3 text-sm leading-none rounded-lg text-white whitespace-no-wrap bg-gradient-to-r from-slate-700 to-slate-500 shadow-lg">
+                        {genre.name}
+                    </span>
+                </div>
+            )}
+            <div className="p-1">
+                <span className="z-10 p-3 text-sm leading-none rounded-lg text-white whitespace-no-wrap bg-gradient-to-r from-slate-700 to-slate-500 shadow-lg">
+                    Score {main.vote_average}/10
+                </span>
+            </div>
+        </div>
+    ;
+
+    function compareSecondColumn(a: any, b: any) {
+        if (a[1] === b[1]) {
+            return 0;
+        }
+        else {
+            return (b[1] < a[1]) ? -1 : 1;
+        }
+    }
+    const castarr: (string | number)[][] = [];
+    credits.cast.forEach((person: { original_name: string; popularity: number; profile_path: string; character: string; id: number}) => {
+        castarr.push([person.original_name, person.popularity, person.profile_path, person.character, person.id])
+    });
+    castarr.sort(compareSecondColumn);
+    const displayarr = [];
+    for (let i = 0; i < 8; i++) {
+        displayarr.push(castarr[i]);
+    }
+
+    const display_list = displayarr.map((person) =>
+        <div key={person[4]} className="group cursor-pointer relative inline-block text-center">
+            <img src={baseimg + person[2]} alt={person[0].toString()} className="rounded-3xl w-60" />
+            <div className="absolute bottom-0 flex-col items-center hidden mb-6 group-hover:flex">
+                <span className="z-10 p-3 text-md leading-none rounded-lg text-white whitespace-no-wrap bg-gradient-to-r from-blue-700 to-red-700 shadow-lg">
+                    {person[0]} as {person[3]}
+                </span>
+            </div>
+        </div>
+    );
+
     return (
         <>
             <main>
-                <div style={{backgroundImage: backdrop_img}} className="relative px-6 lg:px-8 bg-cover bg-center backdrop-brightness-50">
+                <div style={{backgroundImage: backdrop_img}} className="relative px-6 lg:px-8 backdrop-brightness-50 bg-fixed bg-center bg-cover">
                     <div className="mx-auto max-w-3xl pt-20 pb-32 sm:pt-48 sm:pb-40">
-                        <div className="p-6 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-500">
+                        <div className="p-8 rounded-3xl bg-white bg-opacity-60 shadow-md">
                             <div className="hidden sm:mb-8 sm:flex sm:justify-center">
-                                <div className="relative overflow-hidden rounded-full py-1.5 px-4 text-sm leading-6 ring-1 ring-gray-900/10 hover:ring-gray-900/20 bg-white">
-                                <span className="text-gray-600">
-                                    {tag}
-                                </span>
+                                <div className="relative overflow-hidden rounded-full py-1.5 px-4 text-md leading-6 ring-1 ring-gray-900/50 hover:ring-gray-900/5">
+                                    <span className="text-gray-600">
+                                        {tag}
+                                    </span>
                                 </div>
                             </div>
                             <div>
-                                <h1 className="text-4xl text-white font-bold tracking-tight sm:text-center sm:text-6xl drop-shadow-sm">
-                                    {result.title}
+                                <h1 className="text-4xl text-black font-bold tracking-tight sm:text-center sm:text-6xl drop-shadow-sm">
+                                    {main.title}
                                 </h1>
-                                <p className="mt-6 text-lg leading-8 text-white sm:text-center">
-                                    {result.overview}
+                                <p className="mt-6 text-lg leading-8 text-black sm:text-center">
+                                    {main.overview}
                                 </p>
                                 <div className="mt-8 flex gap-x-4 sm:justify-center">
-                                <a
-                                    href="#"
-                                    className="inline-block rounded-lg bg-yellow-600 px-4 py-1.5 text-base font-semibold leading-7 text-white shadow-md"
-                                >
-                                    IMDb
-                                </a>
-                                <a
-                                    href="#"
-                                    className="inline-block rounded-lg px-4 py-1.5 text-base font-semibold leading-7 bg-black text-white shadow-md"
-                                >
-                                    Watch Movie
-                                </a>
+                                    <a
+                                        href={imdblink}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="inline-block rounded-lg bg-yellow-600 px-4 py-1.5 text-base font-semibold leading-7 text-black shadow-md hover:bg-orange-500 hover:text-white hover:scale-110 ease-in-out transition"
+                                    >
+                                        IMDb
+                                    </a>
+                                    <a
+                                        href={main.homepage}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="inline-block rounded-lg px-4 py-1.5 text-base font-semibold leading-7 bg-black text-white shadow-md hover:scale-110 hover:text-black hover:bg-white ease-in-out transition"
+                                    >
+                                        Watch Movie
+                                    </a>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </main>
-            <div className="grid grid-cols-2 p-4">
-                <div className="relative px-6 lg:px-8">
+            <div className="grid grid-cols-6 p-4">
+                <div className="relative px-6 col-span-2">
+                    {genre_list}
                     <img alt="posterimg" src={poster_img} className="rounded-3xl" />
                 </div>
-                <div></div>
+                <div className="col-span-4">
+                    <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1 p-4">
+                        {display_list}
+                    </div>
+                </div>
             </div>
         </>
     );

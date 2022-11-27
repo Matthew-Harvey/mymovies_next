@@ -13,7 +13,7 @@ export default function DisplayMovie() {
                         <a href="/">
                             <div className="flex items-center" aria-label="Home" role="img">
                                 <img className="cursor-pointer w-9 h-9 sm:w-auto" src="/movie.png" alt="logo" />
-                                <p className="ml-2 lg:ml-4 text-3xl font-bold text-gray-800">MyMovies</p>
+                                <p className="ml-2 lg:ml-4 text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-700 to-red-700">MyMovies</p>
                             </div>
                         </a>
                         <div>
