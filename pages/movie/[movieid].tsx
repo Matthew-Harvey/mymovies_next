@@ -47,7 +47,13 @@ export default function DisplayMovie( { main, credits } : any) {
     }
     const castarr: (string | number)[][] = [];
     credits.cast.forEach((person: { original_name: string; popularity: number; profile_path: string; character: string; id: number}) => {
-        castarr.push([person.original_name, person.popularity, person.profile_path, person.character, person.id])
+        var imgurl = "";
+        if (person.profile_path == null){
+            imgurl = "https://eu.ui-avatars.com/api/?name=" + person.original_name;
+        } else {
+            imgurl = baseimg + person.profile_path;
+        }
+        castarr.push([person.original_name, person.popularity, imgurl, person.character, person.id])
     });
     castarr.sort(compareSecondColumn);
 
@@ -75,7 +81,7 @@ export default function DisplayMovie( { main, credits } : any) {
 
     const display_list = currentcast.map((person) =>
         <div key={person[4]} className="group cursor-pointer relative inline-block text-center">
-            <img src={baseimg + person[2]} alt={person[0].toString()} className="rounded-3xl w-40 p-2" />
+            <img id={person[4].toString()} src={person[2].toString()} alt={person[0].toString()} className="rounded-3xl w-40 p-2 h-60" />
             <div className="absolute bottom-0 flex-col items-center hidden mb-6 group-hover:flex">
                 <span className="z-10 p-3 text-md leading-none rounded-lg text-white whitespace-no-wrap bg-gradient-to-r from-blue-700 to-red-700 shadow-lg">
                     {person[0]} as {person[3]}
