@@ -79,8 +79,52 @@ export default function DisplayMovie( { main, credits } : any) {
         </div>
     );
 
-    const display_list = currentcast.map((person) =>
+    const display_cast = currentcast.map((person) =>
         <div key={person[4]} className="group cursor-pointer relative inline-block text-center">
+            <img id={person[4].toString()} src={person[2].toString()} alt={person[0].toString()} className="rounded-3xl w-40 p-2 h-60" />
+            <div className="absolute bottom-0 flex-col items-center hidden mb-6 group-hover:flex">
+                <span className="z-10 p-3 text-md leading-none rounded-lg text-white whitespace-no-wrap bg-gradient-to-r from-blue-700 to-red-700 shadow-lg">
+                    {person[0]} as {person[3]}
+                </span>
+            </div>
+        </div>
+    );
+
+    const crewarr: (string | number)[][] = [];
+    var counter = 0;
+    credits.crew.forEach((person: { original_name: string; popularity: number; profile_path: string; job: string; id: number}) => {
+        var imgurl = "";
+        if (person.profile_path == null){
+            imgurl = "https://eu.ui-avatars.com/api/?name=" + person.original_name;
+        } else {
+            imgurl = baseimg + person.profile_path;
+        }
+        crewarr.push([person.original_name, person.popularity, imgurl, person.job, person.id, counter])
+        counter++;
+    });
+    crewarr.sort(compareSecondColumn);
+
+    const [crewpage, setCrewPage] = useState(1);
+    const [crewperpage] = useState(6);
+    const indexoflastcrew = crewpage * crewperpage;
+    const indexoffirstcrew = indexoflastcrew - crewperpage;
+    const currentcrew = crewarr.slice(indexoffirstcrew, indexoflastcrew)
+    const crewPageNumbers = [];
+    for (let i = 1; i <= Math.ceil(crewarr.length / crewperpage); i++) {
+        crewPageNumbers.push(i);
+    }
+    const crewpaginate = (number: number) => {
+        setCrewPage(number);
+    };
+    const crewpagination = crewPageNumbers.map((number) =>
+        <div key={number} className="group cursor-pointer relative inline-block text-center p-2">
+            <a onClick={() => crewpaginate(number)}>
+                {number}
+            </a>
+        </div>
+    );
+    const display_crew = currentcrew.map((person) =>
+        <div key={person[5]} className="group cursor-pointer relative inline-block text-center">
             <img id={person[4].toString()} src={person[2].toString()} alt={person[0].toString()} className="rounded-3xl w-40 p-2 h-60" />
             <div className="absolute bottom-0 flex-col items-center hidden mb-6 group-hover:flex">
                 <span className="z-10 p-3 text-md leading-none rounded-lg text-white whitespace-no-wrap bg-gradient-to-r from-blue-700 to-red-700 shadow-lg">
@@ -140,8 +184,11 @@ export default function DisplayMovie( { main, credits } : any) {
                 </div>
                 <div className="col-span-4">
                     <div className="text-3xl leading-8 font-bold text-black p-4">Top Cast:</div>
-                    {display_list}
+                    {display_cast}
                     <div className="text-3xl leading-8 font-semibold text-black p-4">{pagination}</div>
+                    <div className="text-3xl leading-8 font-bold text-black p-4">Top Crew:</div>
+                    {display_crew}
+                    <div className="text-3xl leading-8 font-semibold text-black p-4">{crewpagination}</div>
                 </div>
             </div>
         </>
