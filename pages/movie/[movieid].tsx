@@ -1,5 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 
+import { useState } from "react";
+
 export async function getServerSideProps({ query } : any) {
     // Fetch data from external API
     const movieid = query.movieid
@@ -48,14 +50,32 @@ export default function DisplayMovie( { main, credits } : any) {
         castarr.push([person.original_name, person.popularity, person.profile_path, person.character, person.id])
     });
     castarr.sort(compareSecondColumn);
-    const displayarr = [];
-    for (let i = 0; i < 8; i++) {
-        displayarr.push(castarr[i]);
+
+    const [castpage, setCastPage] = useState(1);
+    const [castperpage] = useState(6);
+    const indexoflast = castpage * castperpage;
+    const indexoffirst = indexoflast - castperpage;
+    const currentcast = castarr.slice(indexoffirst, indexoflast)
+    const pageNumbers = [];
+    for (let i = 1; i <= Math.ceil(castarr.length / castperpage); i++) {
+        pageNumbers.push(i);
     }
 
-    const display_list = displayarr.map((person) =>
+    const paginate = (number: number) => {
+        setCastPage(number);
+    };
+
+    const pagination = pageNumbers.map((number) =>
+        <div key={number} className="group cursor-pointer relative inline-block text-center p-2">
+            <a onClick={() => paginate(number)}>
+                {number}
+            </a>
+        </div>
+    );
+
+    const display_list = currentcast.map((person) =>
         <div key={person[4]} className="group cursor-pointer relative inline-block text-center">
-            <img src={baseimg + person[2]} alt={person[0].toString()} className="rounded-3xl w-60" />
+            <img src={baseimg + person[2]} alt={person[0].toString()} className="rounded-3xl w-40 p-2" />
             <div className="absolute bottom-0 flex-col items-center hidden mb-6 group-hover:flex">
                 <span className="z-10 p-3 text-md leading-none rounded-lg text-white whitespace-no-wrap bg-gradient-to-r from-blue-700 to-red-700 shadow-lg">
                     {person[0]} as {person[3]}
@@ -107,17 +127,17 @@ export default function DisplayMovie( { main, credits } : any) {
                     </div>
                 </div>
             </main>
-            <div className="grid grid-cols-6 p-4">
+            <div className="grid p-4 sm:grid-cols-1 md:grid-cols-6">
                 <div className="relative px-6 col-span-2">
                     {genre_list}
                     <img alt="posterimg" src={poster_img} className="rounded-3xl" />
                 </div>
                 <div className="col-span-4">
-                    <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1 p-4">
-                        {display_list}
-                    </div>
+                    <div className="text-3xl leading-8 font-bold text-black p-4">Top Cast:</div>
+                    {display_list}
+                    <div className="text-3xl leading-8 font-semibold text-black p-4">{pagination}</div>
                 </div>
             </div>
         </>
-    );
+    )
 }
