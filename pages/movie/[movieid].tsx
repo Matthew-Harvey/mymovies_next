@@ -2,18 +2,20 @@
 
 import { useState } from "react";
 
+const baseimg = "https://image.tmdb.org/t/p/w500";
+
 export async function getServerSideProps({ query } : any) {
     // Fetch data from external API
     const movieid = query.movieid
     const main = await fetch("https://api.themoviedb.org/3/movie/" + movieid + "?api_key=" + process.env.API_URL?.toString()).then((response) => response.json());
     const credits = await fetch("https://api.themoviedb.org/3/movie/" + movieid + "/credits?api_key=" + process.env.API_URL?.toString()).then((response) => response.json());
-
+    const recommend = await fetch("https://api.themoviedb.org/3/movie/" + movieid + "/recommendations?api_key=" + process.env.API_URL?.toString()).then((response) => response.json());
+    const videos = await fetch("https://api.themoviedb.org/3/movie/" + movieid + "/videos?api_key=" + process.env.API_URL?.toString()).then((response) => response.json());
     // Pass data to the page via props
-    return { props: { main, credits } }
+    return { props: { main, credits, recommend, videos} }
 }
 
-export default function DisplayMovie( { main, credits } : any) {
-    const baseimg = "https://image.tmdb.org/t/p/w500";
+export default function DisplayMovie( { main, credits, recommend, videos} : any) {
     const backdrop_img = "url(https://image.tmdb.org/t/p/original" + main.backdrop_path + ")";
     const poster_img = baseimg + main.poster_path;
     const imdblink = "https://www.imdb.com/title/" + main.imdb_id;
@@ -24,27 +26,24 @@ export default function DisplayMovie( { main, credits } : any) {
         <div className="flex container items-center flex-row py-4">
             {main.genres.map((genre: { id: string; name: string; }) =>
                 <div key={genre.id} className="p-1">
-                    <span className="z-10 p-3 text-sm leading-none rounded-lg text-white whitespace-no-wrap bg-gradient-to-r from-slate-700 to-slate-500 shadow-lg">
+                    <span className="z-10 p-3 text-sm leading-none rounded-lg text-white whitespace-no-wrap bg-gradient-to-r from-slate-700 to-slate-900 shadow-lg">
                         {genre.name}
                     </span>
                 </div>
             )}
             <div className="p-1">
-                <span className="z-10 p-3 text-sm leading-none rounded-lg text-white whitespace-no-wrap bg-gradient-to-r from-slate-700 to-slate-500 shadow-lg">
-                    Score {main.vote_average}/10
+                <span className="z-10 p-3 text-sm leading-none rounded-lg text-white whitespace-no-wrap bg-gradient-to-r from-slate-700 to-slate-900 shadow-lg">
+                    {main.vote_average}/10
+                </span>
+            </div>
+            <div className="p-1">
+                <span className="z-10 p-3 text-sm leading-none rounded-lg text-white whitespace-no-wrap bg-gradient-to-r from-slate-700 to-slate-900 shadow-lg">
+                    {main.original_language}
                 </span>
             </div>
         </div>
     ;
 
-    function compareSecondColumn(a: any, b: any) {
-        if (a[1] === b[1]) {
-            return 0;
-        }
-        else {
-            return (b[1] < a[1]) ? -1 : 1;
-        }
-    }
     const castarr: (string | number)[][] = [];
     credits.cast.forEach((person: { original_name: string; popularity: number; profile_path: string; character: string; id: number}) => {
         var imgurl = "";
@@ -66,27 +65,21 @@ export default function DisplayMovie( { main, credits } : any) {
     for (let i = 1; i <= Math.ceil(castarr.length / castperpage); i++) {
         pageNumbers.push(i);
     }
-
     const paginate = (number: number) => {
-        setCastPage(number);
+        if (number >= 1 && number <= Math.ceil(castarr.length / castperpage)) {
+            setCastPage(number);
+        }
     };
-
-    const pagination = pageNumbers.map((number) =>
-        <div key={number} className="group cursor-pointer relative inline-block text-center p-2">
-            <a onClick={() => paginate(number)}>
-                {number}
-            </a>
-        </div>
-    );
-
     const display_cast = currentcast.map((person) =>
         <div key={person[4]} className="group cursor-pointer relative inline-block text-center">
-            <img id={person[4].toString()} src={person[2].toString()} alt={person[0].toString()} className="rounded-3xl w-40 p-2 h-60" />
-            <div className="absolute bottom-0 flex-col items-center hidden mb-6 group-hover:flex">
-                <span className="z-10 p-3 text-md leading-none rounded-lg text-white whitespace-no-wrap bg-gradient-to-r from-blue-700 to-red-700 shadow-lg">
-                    {person[0]} as {person[3]}
-                </span>
-            </div>
+            <a href={"/person/" + person[4]}>
+                <img id={person[4].toString()} src={person[2].toString()} alt={person[0].toString()} className="rounded-3xl w-40 p-2 h-60" />
+                <div className="absolute bottom-0 flex-col items-center hidden mb-6 group-hover:flex">
+                    <span className="z-10 p-3 text-md leading-none rounded-lg text-white whitespace-no-wrap bg-gradient-to-r from-blue-700 to-red-700 shadow-lg">
+                        {person[0]} as {person[3]}
+                    </span>
+                </div>
+            </a>
         </div>
     );
 
@@ -116,21 +109,16 @@ export default function DisplayMovie( { main, credits } : any) {
     const crewpaginate = (number: number) => {
         setCrewPage(number);
     };
-    const crewpagination = crewPageNumbers.map((number) =>
-        <div key={number} className="group cursor-pointer relative inline-block text-center p-2">
-            <a onClick={() => crewpaginate(number)}>
-                {number}
-            </a>
-        </div>
-    );
     const display_crew = currentcrew.map((person) =>
         <div key={person[5]} className="group cursor-pointer relative inline-block text-center">
-            <img id={person[4].toString()} src={person[2].toString()} alt={person[0].toString()} className="rounded-3xl w-40 p-2 h-60" />
-            <div className="absolute bottom-0 flex-col items-center hidden mb-6 group-hover:flex">
-                <span className="z-10 p-3 text-md leading-none rounded-lg text-white whitespace-no-wrap bg-gradient-to-r from-blue-700 to-red-700 shadow-lg">
-                    {person[0]} as {person[3]}
-                </span>
-            </div>
+            <a href={"/person/" + person[4]}>
+                <img id={person[4].toString()} src={person[2].toString()} alt={person[0].toString()} className="rounded-3xl w-40 p-2 h-60" />
+                <div className="absolute bottom-0 flex-col items-center hidden mb-6 group-hover:flex">
+                    <span className="z-10 p-3 text-md leading-none rounded-lg text-white whitespace-no-wrap bg-gradient-to-r from-blue-700 to-red-700 shadow-lg">
+                        {person[0]} as {person[3]}
+                    </span>
+                </div>
+            </a>
         </div>
     );
 
@@ -138,8 +126,9 @@ export default function DisplayMovie( { main, credits } : any) {
         <>
             <main>
                 <div style={{backgroundImage: backdrop_img}} className="relative px-6 lg:px-8 backdrop-brightness-50 bg-fixed bg-center bg-cover">
-                    <div className="mx-auto max-w-3xl pt-20 pb-32 sm:pt-48 sm:pb-40">
-                        <div className="p-8 rounded-3xl bg-white bg-opacity-60 shadow-md">
+                <div className="grid grid-cols-6 mx-auto max-w-3xl pt-20 pb-32 sm:pt-48 sm:pb-40 items-stretch">
+                        <img src={poster_img} alt={main.title.toString()} className="w-100 col-span-2 rounded-l-3xl" />
+                        <div className="col-span-4 p-2 bg-white bg-opacity-60 shadow-md rounded-r-3xl">
                             <div className="hidden sm:mb-8 sm:flex sm:justify-center">
                                 <div className="relative overflow-hidden rounded-full py-1.5 px-4 text-md leading-6 ring-1 ring-gray-900/50 hover:ring-gray-900/5">
                                     <span className="text-gray-600">
@@ -177,20 +166,112 @@ export default function DisplayMovie( { main, credits } : any) {
                     </div>
                 </div>
             </main>
-            <div className="grid p-4 sm:grid-cols-1 md:grid-cols-6">
-                <div className="relative px-6 col-span-2">
+            <div className="grid p-4 sm:grid-cols-1 md:grid-cols-3 ml-10">
+                <div className="col-span-2 ml-6">
+                    <div className="text-2xl leading-8 font-normal pr-4">{main.tagline}</div>
                     {genre_list}
-                    <img alt="posterimg" src={poster_img} className="rounded-3xl" />
-                </div>
-                <div className="col-span-4">
-                    <div className="text-3xl leading-8 font-bold text-black p-4">Top Cast:</div>
+                    <br />
+                    <div className="group cursor-pointer relative p-2 grid grid-cols-1 text-left items-stretch">
+                        <span>
+                            <span className="text-3xl leading-8 font-bold pr-4">Top Cast: </span>
+                            <button onClick={() => paginate(castpage-1)} className="inline-block rounded-lg bg-yellow-600 px-4 py-1.5 text-base font-semibold leading-7 text-black shadow-md hover:bg-orange-500 hover:text-white hover:scale-110 ease-in-out transition">Prev</button>
+                            <span className="font-normal text-sm"> {castpage + " / " + Math.ceil(castarr.length / castperpage)} </span>
+                            <button onClick={() => paginate(castpage+1)} className="inline-block rounded-lg bg-yellow-600 px-4 py-1.5 text-base font-semibold leading-7 text-black shadow-md hover:bg-orange-500 hover:text-white hover:scale-110 ease-in-out transition">Next</button>
+                        </span>
+                    </div>
                     {display_cast}
-                    <div className="text-3xl leading-8 font-semibold text-black p-4">{pagination}</div>
-                    <div className="text-3xl leading-8 font-bold text-black p-4">Top Crew:</div>
+                    <div className="group cursor-pointer relative p-2 grid grid-cols-1 text-left items-stretch">
+                        <span>
+                            <span className="text-3xl leading-8 font-bold pr-4">Top Crew: </span>
+                            <button onClick={() => crewpaginate(crewpage-1)} className="inline-block rounded-lg bg-yellow-600 px-4 py-1.5 text-base font-semibold leading-7 text-black shadow-md hover:bg-orange-500 hover:text-white hover:scale-110 ease-in-out transition">Prev</button>
+                            <span className="font-normal text-sm"> {crewpage + " / " + Math.ceil(crewarr.length / crewperpage)} </span>
+                            <button onClick={() => crewpaginate(crewpage+1)} className="inline-block rounded-lg bg-yellow-600 px-4 py-1.5 text-base font-semibold leading-7 text-black shadow-md hover:bg-orange-500 hover:text-white hover:scale-110 ease-in-out transition">Next</button>
+                        </span>
+                    </div>
                     {display_crew}
-                    <div className="text-3xl leading-8 font-semibold text-black p-4">{crewpagination}</div>
+                    <div className="text-3xl leading-8 font-bold pr-4">Videos: </div>
+                    <MovieVideos videos={videos} />
+                </div>
+                <div>
+                    {main.belongs_to_collection != null &&
+                        <div key={main.belongs_to_collection} className="group cursor-pointer relative inline-block text-center">
+                            <a href={"/collection/" + main.belongs_to_collection.id}>
+                                <img id={main.belongs_to_collection.id.toString()} src={baseimg + main.belongs_to_collection.poster_path.toString()} alt={main.belongs_to_collection.name.toString()} className="rounded-3xl p-2" />
+                            </a>
+                        </div>
+                    }
+                    <div className="text-3xl leading-8 font-bold pr-4">Recommended: </div>
+                    <RecommendedMovies recommend={recommend} />
                 </div>
             </div>
         </>
+    )
+}
+
+function RecommendedMovies ({ recommend } : any) {
+    const rec_arr: (string | number)[][] = [];
+    var counter = 0;
+    recommend.results.forEach((movie: { title: string; popularity: number; poster_path: string; job: string; id: number}) => {
+        var imgurl = "";
+        if (movie.poster_path == null){
+            imgurl = "https://eu.ui-avatars.com/api/?name=" + movie.title;
+        } else {
+            imgurl = baseimg + movie.poster_path;
+        }
+        rec_arr.push([movie.title, movie.popularity, imgurl, movie.job, movie.id, counter])
+        counter++;
+    });
+    rec_arr.sort(compareSecondColumn);
+    const rec_result = rec_arr.map((movie : any) =>
+        <div key={movie[4]} className="group cursor-pointer relative inline-block text-center">
+            <a href={"/movie/" + movie[4]}>
+                <img id={movie[4].toString()} src={movie[2]} alt={movie[0].toString()} className="rounded-3xl w-40 p-2 h-60" />
+                <div className="absolute bottom-0 flex-col items-center hidden mb-6 group-hover:flex">
+                    <span className="z-10 p-3 text-md leading-none rounded-lg text-white whitespace-no-wrap bg-gradient-to-r from-blue-700 to-red-700 shadow-lg">
+                        {movie[0]}
+                    </span>
+                </div>
+            </a>
+        </div>
+    );
+    return (
+        <div className="">
+            {rec_result}
+        </div> 
+    )
+}
+
+function compareSecondColumn(a: any, b: any) {
+    if (a[1] === b[1]) {
+        return 0;
+    }
+    else {
+        return (b[1] < a[1]) ? -1 : 1;
+    }
+}
+
+import dynamic from 'next/dynamic';
+const ReactPlayer = dynamic(() => import("react-player"), { ssr: false });
+
+function MovieVideos ({ videos } : any) {
+    const video_arr: (string | number)[][] = [];
+    var counter = 0;
+    videos.results.forEach((video: { name: string; id: string; key: string, site: string, official: boolean}) => {
+        var imgurl = "";
+        if (video.site == "YouTube" && video.official == true) {
+            imgurl = "https://www.youtube.com/watch?v=" + video.key;
+            video_arr.push([video.name, imgurl, counter])
+            counter++;
+        }
+    });
+    const videoresult = video_arr.map((video) =>
+        <div key={video[2]} className="p-2">
+            <ReactPlayer url={video[1].toString()} width="95%" />
+        </div>
+    );
+    return (
+        <div className="grid md:grid-cols-2 sm:grid-cols-2 p-2">
+            {videoresult}
+        </div> 
     )
 }
