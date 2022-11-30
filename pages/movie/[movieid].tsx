@@ -281,7 +281,7 @@ function MovieVideos ({ videos } : any) {
     };
     const videoresult = currentvideo.map((video) =>
         <div key={video[2]} className="p-2">
-            <ReactPlayer url={video[1].toString()} width="150%" controls={true} />
+            <ReactPlayer url={video[1].toString()} width="100%" controls={true} />
         </div>
     );
     return (
