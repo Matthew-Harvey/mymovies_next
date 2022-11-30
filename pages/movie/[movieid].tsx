@@ -107,7 +107,9 @@ export default function DisplayMovie( { main, credits, recommend, videos} : any)
         crewPageNumbers.push(i);
     }
     const crewpaginate = (number: number) => {
-        setCrewPage(number);
+        if (number >= 1 && number <= Math.ceil(crewarr.length / crewperpage)) {
+            setCrewPage(number);
+        }
     };
     const display_crew = currentcrew.map((person) =>
         <div key={person[5]} className="group cursor-pointer relative inline-block text-center">
@@ -126,17 +128,17 @@ export default function DisplayMovie( { main, credits, recommend, videos} : any)
         <>
             <main>
                 <div style={{backgroundImage: backdrop_img}} className="relative px-6 lg:px-8 backdrop-brightness-50 bg-fixed bg-center bg-cover">
-                <div className="grid grid-cols-6 mx-auto max-w-3xl pt-20 pb-32 sm:pt-48 sm:pb-40 items-stretch">
-                        <img src={poster_img} alt={main.title.toString()} className="w-100 col-span-2 rounded-l-3xl" />
-                        <div className="col-span-4 p-2 bg-white bg-opacity-60 shadow-md rounded-r-3xl">
-                            <div className="hidden sm:mb-8 sm:flex sm:justify-center">
+                <div className="grid grid-cols-6 mx-auto max-w-4xl pt-20 pb-32 sm:pt-48 sm:pb-40 items-stretch">
+                        <img src={poster_img} alt={main.title.toString()} className="w-100 invisible md:visible md:rounded-l-3xl md:col-span-2" />
+                        <div className="bg-white bg-opacity-75 shadow-md rounded-3xl md:rounded-r-3xl md:rounded-none col-span-6 md:col-span-4">
+                            <div className="hidden sm:mb-8 sm:flex sm:justify-center p-2">
                                 <div className="relative overflow-hidden rounded-full py-1.5 px-4 text-md leading-6 ring-1 ring-gray-900/50 hover:ring-gray-900/5">
                                     <span className="text-gray-600">
                                         {tag}
                                     </span>
                                 </div>
                             </div>
-                            <div>
+                            <div className="p-2">
                                 <h1 className="text-4xl text-black font-bold tracking-tight sm:text-center sm:text-6xl drop-shadow-sm">
                                     {main.title}
                                 </h1>
@@ -166,8 +168,8 @@ export default function DisplayMovie( { main, credits, recommend, videos} : any)
                     </div>
                 </div>
             </main>
-            <div className="grid p-4 sm:grid-cols-1 md:grid-cols-3 ml-10">
-                <div className="col-span-2 ml-6">
+            <div className="grid p-2 sm:grid-cols-1 md:grid-cols-3">
+                <div className="col-span-2 sm:ml-0 md:ml-5 lg:ml-10">
                     <div className="text-2xl leading-8 font-normal pr-4">{main.tagline}</div>
                     {genre_list}
                     <br />
@@ -189,7 +191,6 @@ export default function DisplayMovie( { main, credits, recommend, videos} : any)
                         </span>
                     </div>
                     {display_crew}
-                    <div className="text-3xl leading-8 font-bold pr-4">Videos: </div>
                     <MovieVideos videos={videos} />
                 </div>
                 <div>
@@ -264,14 +265,41 @@ function MovieVideos ({ videos } : any) {
             counter++;
         }
     });
-    const videoresult = video_arr.map((video) =>
+    const [videopage, setVideoPage] = useState(1);
+    const [videoperpage] = useState(1);
+    const indexoflastvideo = videopage * videoperpage;
+    const indexoffirstvideo = indexoflastvideo - videoperpage;
+    const currentvideo = video_arr.slice(indexoffirstvideo, indexoflastvideo)
+    const crewPageNumbers = [];
+    for (let i = 1; i <= Math.ceil(video_arr.length / videoperpage); i++) {
+        crewPageNumbers.push(i);
+    }
+    const video_paginate = (number: number) => {
+        if (number >= 1 && number <= Math.ceil(video_arr.length / videoperpage)) {
+            setVideoPage(number);
+        }
+    };
+    const videoresult = currentvideo.map((video) =>
         <div key={video[2]} className="p-2">
-            <ReactPlayer url={video[1].toString()} width="95%" />
+            <ReactPlayer url={video[1].toString()} width="150%" controls={true} />
         </div>
     );
     return (
         <div className="grid md:grid-cols-2 sm:grid-cols-2 p-2">
+            {video_arr.length != 0 &&
+                <>
+                    <div className="text-3xl leading-8 font-bold pr-4">
+                        <span>
+                            <span className="text-3xl leading-8 font-bold pr-4">Videos: </span>
+                            <button onClick={() => video_paginate(videopage-1)} className="inline-block rounded-lg bg-yellow-600 px-4 py-1.5 text-base font-semibold leading-7 text-black shadow-md hover:bg-orange-500 hover:text-white hover:scale-110 ease-in-out transition">Prev</button>
+                            <span className="font-normal text-sm"> {videopage + " / " + Math.ceil(video_arr.length / videoperpage)} </span>
+                            <button onClick={() => video_paginate(videopage+1)} className="inline-block rounded-lg bg-yellow-600 px-4 py-1.5 text-base font-semibold leading-7 text-black shadow-md hover:bg-orange-500 hover:text-white hover:scale-110 ease-in-out transition">Next</button>
+                        </span>
+                    </div>
+                </>
+            }
+            <br />
             {videoresult}
-        </div> 
+        </div>
     )
 }
