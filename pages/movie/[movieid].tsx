@@ -1,6 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 
 import { useState } from "react";
+import { useAutoAnimate } from '@formkit/auto-animate/react';
 
 const baseimg = "https://image.tmdb.org/t/p/w500";
 
@@ -21,6 +22,7 @@ export default function DisplayMovie( { main, credits, recommend, videos} : any)
     const imdblink = "https://www.imdb.com/title/" + main.imdb_id;
     const revtotal = "$" + new Intl.NumberFormat('en-US').format(main.revenue);
     const tag = main.status + " " + main.release_date + " / " + main.runtime + " minutes / " +  revtotal;
+    const [parent] = useAutoAnimate<HTMLDivElement>();
 
     const genre_list = 
         <div className="flex container items-center flex-row py-4">
@@ -123,7 +125,6 @@ export default function DisplayMovie( { main, credits, recommend, videos} : any)
             </a>
         </div>
     );
-
     return (
         <>
             <main>
@@ -169,7 +170,7 @@ export default function DisplayMovie( { main, credits, recommend, videos} : any)
                 </div>
             </main>
             <div className="grid p-2 sm:grid-cols-1 md:grid-cols-3">
-                <div className="col-span-2 sm:ml-0 md:ml-5 lg:ml-10">
+                <div className="col-span-2 sm:ml-0 md:ml-5 lg:ml-10" ref={parent}>
                     <div className="text-2xl leading-8 font-normal pr-4">{main.tagline}</div>
                     {genre_list}
                     <br />
