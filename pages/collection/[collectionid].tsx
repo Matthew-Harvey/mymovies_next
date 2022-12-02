@@ -35,7 +35,7 @@ export default function DisplayMovie( { main } : any) {
     const display_parts = partsarr.map((movie : any) =>
         <div key={movie[4]} className="group cursor-pointer relative inline-block text-center">
             <a href={"/movie/" + movie[4]}>
-                <img id={movie[4].toString()} src={movie[2]} alt={movie[0].toString()} className="rounded-3xl w-40 p-2 h-60" />
+                <img id={movie[4].toString()} src={movie[2]} alt={movie[0].toString()} className="rounded-3xl w-80 p-2" />
                 <div className="absolute bottom-0 flex-col items-center hidden mb-6 group-hover:flex">
                     <span className="z-10 p-3 text-md leading-none rounded-lg text-white whitespace-no-wrap bg-gradient-to-r from-blue-700 to-red-700 shadow-lg">
                         {movie[0]}
@@ -64,7 +64,10 @@ export default function DisplayMovie( { main } : any) {
                 </div>
             </main>
             <div className="grid p-2 sm:grid-cols-1 md:grid-cols-3">
-                <div className="col-span-2 sm:ml-0 md:ml-5 lg:ml-10" ref={parent}>
+                <div className="text-3xl leading-8 font-bold p-4">
+                    Parts of collection:
+                </div>
+                <div className="col-span-3 sm:ml-0 md:ml-5 lg:ml-10" ref={parent}>
                     {display_parts}
                 </div>
             </div>

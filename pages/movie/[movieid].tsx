@@ -59,7 +59,7 @@ export default function DisplayMovie( { main, credits, recommend, videos} : any)
     castarr.sort(compareSecondColumn);
 
     const [castpage, setCastPage] = useState(1);
-    const [castperpage] = useState(6);
+    const [castperpage] = useState(10);
     const indexoflast = castpage * castperpage;
     const indexoffirst = indexoflast - castperpage;
     const currentcast = castarr.slice(indexoffirst, indexoflast)
@@ -75,7 +75,7 @@ export default function DisplayMovie( { main, credits, recommend, videos} : any)
     const display_cast = currentcast.map((person) =>
         <div key={person[4]} className="group cursor-pointer relative inline-block text-center">
             <a href={"/person/" + person[4]}>
-                <img id={person[4].toString()} src={person[2].toString()} alt={person[0].toString()} className="rounded-3xl w-40 p-2 h-60" />
+                <img id={person[4].toString()} src={person[2].toString()} alt={person[0].toString()} className="rounded-3xl w-48 p-2 h-70" />
                 <div className="absolute bottom-0 flex-col items-center hidden mb-6 group-hover:flex">
                     <span className="z-10 p-3 text-md leading-none rounded-lg text-white whitespace-no-wrap bg-gradient-to-r from-blue-700 to-red-700 shadow-lg">
                         {person[0]} as {person[3]}
@@ -100,7 +100,7 @@ export default function DisplayMovie( { main, credits, recommend, videos} : any)
     crewarr.sort(compareSecondColumn);
 
     const [crewpage, setCrewPage] = useState(1);
-    const [crewperpage] = useState(6);
+    const [crewperpage] = useState(10);
     const indexoflastcrew = crewpage * crewperpage;
     const indexoffirstcrew = indexoflastcrew - crewperpage;
     const currentcrew = crewarr.slice(indexoffirstcrew, indexoflastcrew)
@@ -116,7 +116,7 @@ export default function DisplayMovie( { main, credits, recommend, videos} : any)
     const display_crew = currentcrew.map((person) =>
         <div key={person[5]} className="group cursor-pointer relative inline-block text-center">
             <a href={"/person/" + person[4]}>
-                <img id={person[4].toString()} src={person[2].toString()} alt={person[0].toString()} className="rounded-3xl w-40 p-2 h-60" />
+                <img id={person[4].toString()} src={person[2].toString()} alt={person[0].toString()} className="rounded-3xl w-48 p-2 h-70" />
                 <div className="absolute bottom-0 flex-col items-center hidden mb-6 group-hover:flex">
                     <span className="z-10 p-3 text-md leading-none rounded-lg text-white whitespace-no-wrap bg-gradient-to-r from-blue-700 to-red-700 shadow-lg">
                         {person[0]} as {person[3]}
