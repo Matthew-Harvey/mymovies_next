@@ -59,7 +59,7 @@ export default function DisplayMovie( { main, credits, recommend, videos} : any)
     castarr.sort(compareSecondColumn);
 
     const [castpage, setCastPage] = useState(1);
-    const [castperpage] = useState(10);
+    const [castperpage] = useState(6);
     const indexoflast = castpage * castperpage;
     const indexoffirst = indexoflast - castperpage;
     const currentcast = castarr.slice(indexoffirst, indexoflast)
@@ -100,7 +100,7 @@ export default function DisplayMovie( { main, credits, recommend, videos} : any)
     crewarr.sort(compareSecondColumn);
 
     const [crewpage, setCrewPage] = useState(1);
-    const [crewperpage] = useState(10);
+    const [crewperpage] = useState(6);
     const indexoflastcrew = crewpage * crewperpage;
     const indexoffirstcrew = indexoflastcrew - crewperpage;
     const currentcrew = crewarr.slice(indexoffirstcrew, indexoflastcrew)

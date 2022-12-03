@@ -29,10 +29,10 @@ export default function DisplayMovie() {
                                         <a href="/trending">Trending</a>
                                     </li>
                                     <li className="text-gray-600 text-lg hover:text-blue-400 cursor-pointer md:ml-10 pt-10 md:pt-0">
-                                        <a href="/shows">Shows</a>
+                                        <a href="/movies">Movies</a>
                                     </li>
                                     <li className="text-gray-600 text-lg hover:text-blue-400 cursor-pointer md:ml-10 pt-10 md:pt-0">
-                                        <a href="/movies">Movies</a>
+                                        <a href="/tv">Tv-Shows</a>
                                     </li>
                                     <li className="text-gray-600 text-lg hover:text-blue-400 cursor-pointer md:ml-10 pt-10 md:pt-0">
                                         <a href="/people">People</a>

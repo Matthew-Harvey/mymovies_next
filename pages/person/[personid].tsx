@@ -150,7 +150,7 @@ export default function DisplayPerson( { main, credits } : any) {
             <div className="p-6 font-semibold text-lg">
                 {main.biography}
             </div>
-            <div className="grid p-2 sm:grid-cols-1 md:grid-cols-2">
+            <div className="grid p-2 sm:grid-cols-1 md:grid-cols-1">
                 <div className="col-span-1 sm:ml-0 md:ml-5 lg:ml-10" ref={parent}>
                     <div className="group cursor-pointer relative p-2 grid grid-cols-1 text-left items-stretch">
                         <span>
@@ -161,8 +161,6 @@ export default function DisplayPerson( { main, credits } : any) {
                         </span>
                     </div>
                     {display_cast}
-                </div>
-                <div ref={parent2}>
                     <div className="group cursor-pointer relative p-2 grid grid-cols-1 text-left items-stretch">
                         <span>
                             <span className="text-3xl leading-8 font-bold pr-4">In Crew: </span>
