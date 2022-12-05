@@ -25,22 +25,22 @@ export default function DisplayMovie() {
                                     <img className="h-8 w-8" src="https://tuk-cdn.s3.amazonaws.com/can-uploader/center_aligned_with_image-svg5.svg" alt="hide" />
                                 </button>
                                 <ul className="flex text-3xl md:text-base items-center py-8 md:flex flex-col md:flex-row justify-center fixed md:relative top-0 bottom-0 left-0 right-0 bg-white md:bg-transparent  z-20">
-                                    <li className="text-gray-600 text-lg hover:text-blue-400 cursor-pointer md:ml-10 pt-10 md:pt-0">
+                                    <li className="text-gray-600 text-lg hover:text-blue-400 cursor-pointer sm:ml-5 md:ml-10 pt-10 md:pt-0">
                                         <a href="/trending">Trending</a>
                                     </li>
-                                    <li className="text-gray-600 text-lg hover:text-blue-400 cursor-pointer md:ml-10 pt-10 md:pt-0">
+                                    <li className="text-gray-600 text-lg hover:text-blue-400 cursor-pointer sm:ml-5 lg:ml-10 pt-10 md:pt-0">
                                         <a href="/movies">Movies</a>
                                     </li>
-                                    <li className="text-gray-600 text-lg hover:text-blue-400 cursor-pointer md:ml-10 pt-10 md:pt-0">
-                                        <a href="/tv">Tv-Shows</a>
+                                    <li className="text-gray-600 text-lg hover:text-blue-400 cursor-pointer sm:ml-5 lg:ml-10 pt-10 md:pt-0">
+                                        <a href="/tvshows">TV Shows</a>
                                     </li>
-                                    <li className="text-gray-600 text-lg hover:text-blue-400 cursor-pointer md:ml-10 pt-10 md:pt-0">
+                                    <li className="text-gray-600 text-lg hover:text-blue-400 cursor-pointer sm:ml-5 lg:ml-10 pt-10 md:pt-0">
                                         <a href="/people">People</a>
                                     </li>
-                                    <li className="text-gray-600 text-lg hover:text-blue-400 cursor-pointer md:ml-10 pt-10 md:pt-0">
+                                    <li className="text-gray-600 text-lg hover:text-blue-400 cursor-pointer sm:ml-5 lg:ml-10 pt-10 md:pt-0">
                                         <a href="/list">Lists</a>
                                     </li>
-                                    <li className="text-gray-600 text-lg hover:text-blue-400 cursor-pointer md:ml-10 pt-10 md:pt-0">
+                                    <li className="text-gray-600 text-lg hover:text-blue-400 cursor-pointer sm:ml-5 lg:ml-10 pt-10 md:pt-0">
                                         <a href="/quiz">Quiz</a>
                                     </li>
                                 </ul>
