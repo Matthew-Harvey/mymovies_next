@@ -7,11 +7,11 @@ const baseimg = "https://image.tmdb.org/t/p/w500";
 
 export async function getServerSideProps({ query } : any) {
     // Fetch data from external API
-    const movieid = query.movieid
-    const main = await fetch("https://api.themoviedb.org/3/movie/" + movieid + "?api_key=" + process.env.API_URL?.toString()).then((response) => response.json());
-    const credits = await fetch("https://api.themoviedb.org/3/movie/" + movieid + "/credits?api_key=" + process.env.API_URL?.toString()).then((response) => response.json());
-    const recommend = await fetch("https://api.themoviedb.org/3/movie/" + movieid + "/recommendations?api_key=" + process.env.API_URL?.toString()).then((response) => response.json());
-    const videos = await fetch("https://api.themoviedb.org/3/movie/" + movieid + "/videos?api_key=" + process.env.API_URL?.toString()).then((response) => response.json());
+    const tvid = query.tvid
+    const main = await fetch("https://api.themoviedb.org/3/tv/" + tvid + "?api_key=" + process.env.API_URL?.toString()).then((response) => response.json());
+    const credits = await fetch("https://api.themoviedb.org/3/tv/" + tvid + "/credits?api_key=" + process.env.API_URL?.toString()).then((response) => response.json());
+    const recommend = await fetch("https://api.themoviedb.org/3/tv/" + tvid + "/recommendations?api_key=" + process.env.API_URL?.toString()).then((response) => response.json());
+    const videos = await fetch("https://api.themoviedb.org/3/tv/" + tvid + "/videos?api_key=" + process.env.API_URL?.toString()).then((response) => response.json());
     // Pass data to the page via props
     return { props: { main, credits, recommend, videos} }
 }
@@ -19,9 +19,7 @@ export async function getServerSideProps({ query } : any) {
 export default function DisplayMovie( { main, credits, recommend, videos} : any) {
     const backdrop_img = "url(https://image.tmdb.org/t/p/original" + main.backdrop_path + ")";
     const poster_img = baseimg + main.poster_path;
-    const imdblink = "https://www.imdb.com/title/" + main.imdb_id;
-    const revtotal = "$" + new Intl.NumberFormat('en-US').format(main.revenue);
-    const tag = main.status + " " + main.release_date + " / " + main.runtime + " minutes / " +  revtotal;
+    const tag = main.status + " / " + main.number_of_episodes + " episodes / " + main.number_of_seasons + " season(s)";
     const [parent] = useAutoAnimate<HTMLDivElement>();
 
     const genre_list = 
@@ -130,7 +128,7 @@ export default function DisplayMovie( { main, credits, recommend, videos} : any)
             <main>
                 <div style={{backgroundImage: backdrop_img}} className="relative px-6 lg:px-8 backdrop-brightness-50 bg-fixed bg-center bg-cover">
                 <div className="grid grid-cols-6 mx-auto max-w-4xl pt-20 pb-32 sm:pt-48 sm:pb-40 items-stretch">
-                        <img src={poster_img} alt={main.title.toString()} className="w-100 invisible md:visible md:rounded-l-3xl md:col-span-2" />
+                        <img src={poster_img} alt={main.name.toString()} className="w-100 invisible md:visible md:rounded-l-3xl md:col-span-2" />
                         <div className="bg-white bg-opacity-75 shadow-md rounded-3xl md:rounded-r-3xl md:rounded-none col-span-6 md:col-span-4">
                             <div className="hidden sm:mb-8 sm:flex sm:justify-center p-2">
                                 <div className="relative overflow-hidden rounded-full py-1.5 px-4 text-md leading-6 ring-1 ring-gray-900/50 hover:ring-gray-900/5">
@@ -141,27 +139,19 @@ export default function DisplayMovie( { main, credits, recommend, videos} : any)
                             </div>
                             <div className="p-2">
                                 <h1 className="text-4xl text-black font-bold tracking-tight sm:text-center sm:text-6xl drop-shadow-sm">
-                                    {main.title}
+                                    {main.name}
                                 </h1>
                                 <p className="mt-6 text-lg leading-8 text-black sm:text-center">
                                     {main.overview}
                                 </p>
                                 <div className="mt-8 flex gap-x-4 sm:justify-center">
                                     <a
-                                        href={imdblink}
-                                        target="_blank"
-                                        rel="noreferrer"
-                                        className="inline-block rounded-lg bg-yellow-600 px-4 py-1.5 text-base font-semibold leading-7 text-black shadow-md hover:bg-orange-500 hover:text-white hover:scale-110 ease-in-out transition"
-                                    >
-                                        IMDb
-                                    </a>
-                                    <a
                                         href={main.homepage}
                                         target="_blank"
                                         rel="noreferrer"
                                         className="inline-block rounded-lg px-4 py-1.5 text-base font-semibold leading-7 bg-black text-white shadow-md hover:scale-110 hover:text-black hover:bg-white ease-in-out transition"
                                     >
-                                        Watch Movie
+                                        Watch Tv Show
                                     </a>
                                 </div>
                             </div>
@@ -213,10 +203,11 @@ export default function DisplayMovie( { main, credits, recommend, videos} : any)
 function RecommendedMovies ({ recommend } : any) {
     const rec_arr: (string | number)[][] = [];
     var counter = 0;
-    recommend.results.forEach((movie: { title: string; popularity: number; poster_path: string; job: string; id: number, media_type: string}) => {
+    console.log(recommend.results);
+    recommend.results.forEach((movie: { name: string; popularity: number; poster_path: string; job: string; id: number, media_type: string}) => {
         var imgurl = "";
         if (movie.poster_path == null){
-            imgurl = "https://eu.ui-avatars.com/api/?name=" + movie.title;
+            imgurl = "https://eu.ui-avatars.com/api/?name=" + movie.name;
         } else {
             imgurl = baseimg + movie.poster_path;
         }
@@ -226,9 +217,10 @@ function RecommendedMovies ({ recommend } : any) {
         } else {
             hrefrec = "/movie/" + movie.id;
         }
-        rec_arr.push([movie.title, movie.popularity, imgurl, movie.job, movie.id, counter, hrefrec])
+        rec_arr.push([movie.name, movie.popularity, imgurl, movie.job, movie.id, counter, hrefrec])
         counter++;
     });
+    console.log(rec_arr);
     rec_arr.sort(compareSecondColumn);
     const rec_result = rec_arr.map((movie : any) =>
         <div key={movie[5]} className="group cursor-pointer relative inline-block text-center">
