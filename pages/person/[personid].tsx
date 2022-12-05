@@ -31,9 +31,9 @@ export default function DisplayPerson( { main, credits } : any) {
             imgurl = baseimg + movie.poster_path;
         }
         if (movie.title == undefined) {
-            castarr.push([movie.name, movie.popularity, imgurl, movie.character, movie.id, counter])
+            castarr.push([movie.name, movie.popularity, imgurl, movie.character, movie.id, counter, "/tv/" + movie.id])
         } else {
-            castarr.push([movie.title, movie.popularity, imgurl, movie.character, movie.id, counter])
+            castarr.push([movie.title, movie.popularity, imgurl, movie.character, movie.id, counter, "/movie/" + movie.id])
         }
         counter++;
     });
@@ -55,7 +55,7 @@ export default function DisplayPerson( { main, credits } : any) {
     };
     const display_cast = currentcast.map((movie: any) =>
         <div key={movie[5]} className="group cursor-pointer relative inline-block text-center">
-            <a href={"/movie/" + movie[4]}>
+            <a href={movie[6]}>
                 <img id={movie[4].toString()} src={movie[2]} alt={movie[0].toString()} className="rounded-3xl w-48 p-2 h-70" />
                 <div className="absolute bottom-0 flex-col items-center hidden mb-6 group-hover:flex">
                     <span className="z-10 p-3 text-md leading-none rounded-lg text-white whitespace-no-wrap bg-gradient-to-r from-blue-700 to-red-700 shadow-lg">
@@ -76,9 +76,9 @@ export default function DisplayPerson( { main, credits } : any) {
             imgurl = baseimg + movie.poster_path;
         }
         if (movie.title == undefined) {
-            crewarr.push([movie.name, movie.popularity, imgurl, movie.character, movie.id, counter])
+            crewarr.push([movie.name, movie.popularity, imgurl, movie.character, movie.id, counter, "/tv/" + movie.id])
         } else {
-            crewarr.push([movie.title, movie.popularity, imgurl, movie.character, movie.id, counter])
+            crewarr.push([movie.title, movie.popularity, imgurl, movie.character, movie.id, counter, "/movie/" + movie.id])
         }
         counter++;
     });
@@ -100,7 +100,7 @@ export default function DisplayPerson( { main, credits } : any) {
     };
     const display_crew = currentcrew.map((movie: any) =>
         <div key={movie[5]} className="group cursor-pointer relative inline-block text-center">
-            <a href={"/tv/" + movie[4]}>
+            <a href={movie[6]}>
                 <img id={movie[4].toString()} src={movie[2]} alt={movie[0].toString()} className="rounded-3xl w-48 p-2 h-70" />
                 <div className="absolute bottom-0 flex-col items-center hidden mb-6 group-hover:flex">
                     <span className="z-10 p-3 text-md leading-none rounded-lg text-white whitespace-no-wrap bg-gradient-to-r from-blue-700 to-red-700 shadow-lg">

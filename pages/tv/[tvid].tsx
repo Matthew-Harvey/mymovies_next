@@ -220,7 +220,6 @@ function RecommendedMovies ({ recommend } : any) {
         rec_arr.push([movie.name, movie.popularity, imgurl, movie.job, movie.id, counter, hrefrec])
         counter++;
     });
-    console.log(rec_arr);
     rec_arr.sort(compareSecondColumn);
     const rec_result = rec_arr.map((movie : any) =>
         <div key={movie[5]} className="group cursor-pointer relative inline-block text-center">
