@@ -8,10 +8,10 @@ const baseimg = "https://image.tmdb.org/t/p/w500";
 export async function getServerSideProps({ query } : any) {
     // Fetch data from external API
     const tvid = query.tvid
-    const main = await fetch("https://api.themoviedb.org/3/tv/" + tvid + "?api_key=" + process.env.API_URL?.toString()).then((response) => response.json());
-    const credits = await fetch("https://api.themoviedb.org/3/tv/" + tvid + "/credits?api_key=" + process.env.API_URL?.toString()).then((response) => response.json());
-    const recommend = await fetch("https://api.themoviedb.org/3/tv/" + tvid + "/recommendations?api_key=" + process.env.API_URL?.toString()).then((response) => response.json());
-    const videos = await fetch("https://api.themoviedb.org/3/tv/" + tvid + "/videos?api_key=" + process.env.API_URL?.toString()).then((response) => response.json());
+    const main = await fetch("https://api.themoviedb.org/3/tv/" + tvid + "?api_key=" + process.env.REACT_APP_API_URL?.toString()).then((response) => response.json());
+    const credits = await fetch("https://api.themoviedb.org/3/tv/" + tvid + "/credits?api_key=" + process.env.REACT_APP_API_URL?.toString()).then((response) => response.json());
+    const recommend = await fetch("https://api.themoviedb.org/3/tv/" + tvid + "/recommendations?api_key=" + process.env.REACT_APP_API_URL?.toString()).then((response) => response.json());
+    const videos = await fetch("https://api.themoviedb.org/3/tv/" + tvid + "/videos?api_key=" + process.env.REACT_APP_API_URL?.toString()).then((response) => response.json());
     // Pass data to the page via props
     return { props: { main, credits, recommend, videos} }
 }

@@ -8,7 +8,7 @@ const baseimg = "https://image.tmdb.org/t/p/w500";
 export async function getServerSideProps({ query } : any) {
     // Fetch data from external API
     const collectionid = query.collectionid;
-    const main = await fetch("https://api.themoviedb.org/3/collection/" + collectionid + "?api_key=" + process.env.API_URL?.toString()).then((response) => response.json());
+    const main = await fetch("https://api.themoviedb.org/3/collection/" + collectionid + "?api_key=" + process.env.REACT_APP_API_URL?.toString()).then((response) => response.json());
     // Pass data to the page via props
     return { props: { main } }
 }
