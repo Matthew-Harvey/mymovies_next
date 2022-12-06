@@ -1,37 +1,58 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @next/next/no-img-element */
-
-import { useState } from "react";
-import { useAutoAnimate } from '@formkit/auto-animate/react';
 
 const baseimg = "https://image.tmdb.org/t/p/w500";
 
-export async function getServerSideProps({ query } : any) {
+import { useAutoAnimate } from "@formkit/auto-animate/react";
+import axios from "axios";
+import { useEffect, useState } from "react";
+
+export async function getServerSideProps() {
     // Fetch data from external API
-    const movie = await fetch("https://api.themoviedb.org/3/trending/movie/week?api_key=" + process.env.NEXT_PUBLIC_APIKEY?.toString()).then((response) => response.json());
-    const tv = await fetch("https://api.themoviedb.org/3/trending/tv/week?api_key=" + process.env.NEXT_PUBLIC_APIKEY?.toString()).then((response) => response.json());
-    const people = await fetch("https://api.themoviedb.org/3/trending/person/week?api_key=" + process.env.NEXT_PUBLIC_APIKEY?.toString()).then((response) => response.json());
+    const movie = await fetch("https://api.themoviedb.org/3/trending/person/week?api_key=" + process.env.NEXT_PUBLIC_APIKEY?.toString()).then((response) => response.json());
+    const type = "person";
     // Pass data to the page via props
-    return { props: { movie, tv, people} }
+    return { props: { mediatype: type, movie: movie} }
 }
 
-export default function DisplayMovie( { movie, tv, people } : any) {
-    const [parent] = useAutoAnimate<HTMLDivElement>();
+export default function MoviesHome( { mediatype, movie } : any) {
+    
+    const [currentdata, setData] = useState(movie);
+    const [query, setQuery] = useState("");
 
+    const [currentinput, setInput] = useState("");
+    const InputChange = (value: any) => {
+        setInput(value);
+    }
+
+    useEffect(() => {
+        const fetchData = async () => {
+            const getResult = await axios.get(process.env.NEXT_PUBLIC_BASEURL?.toString() + "api/getSearchResult", {params: {searchterm: query, type: mediatype}});
+            setData(getResult.data.result);
+            console.log(getResult.data.result)
+        }
+        if (query != "") {
+            fetchData();
+        }
+    }, [query]);
+
+    const [parent] = useAutoAnimate<HTMLDivElement>();
+    
     const movie_arr: (string | number)[][] = [];
     var counter = 0;
-    movie.results.forEach((movie: { title: string; popularity: number; poster_path: string; job: string; id: number}) => {
+    currentdata.results.forEach((person: { name: string; popularity: number; profile_path: string; id: number}) => {
         var imgurl = "";
-        if (movie.poster_path == null){
-            imgurl = "https://eu.ui-avatars.com/api/?name=" + movie.title;
+        if (person.profile_path == null){
+            imgurl = "https://eu.ui-avatars.com/api/?name=" + person.name;
         } else {
-            imgurl = baseimg + movie.poster_path;
+            imgurl = baseimg + person.profile_path;
         }
-        movie_arr.push([movie.title, movie.popularity, imgurl, movie.job, movie.id, counter])
+        movie_arr.push([person.name, person.popularity, imgurl, person.id, counter])
         counter++;
     });
     
     const [castpage, setCastPage] = useState(1);
-    const [castperpage] = useState(8);
+    const [castperpage] = useState(18);
     const indexoflast = castpage * castperpage;
     const indexoffirst = indexoflast - castperpage;
     const currentcast = movie_arr.slice(indexoffirst, indexoflast)
@@ -45,8 +66,8 @@ export default function DisplayMovie( { movie, tv, people } : any) {
         }
     };
     const display_movies = currentcast.map((movie) =>
-        <div key={movie[5]} className="group cursor-pointer relative inline-block text-center">
-            <a href={"/movie/" + movie[4]}>
+        <div key={movie[4]} className="group cursor-pointer relative inline-block text-center">
+            <a href={"/person/" + movie[3]}>
                 <img id={movie[4].toString()} src={movie[2].toString()} alt={movie[0].toString()} className="rounded-3xl w-48 p-2 h-70" />
                 <div className="absolute bottom-0 flex-col items-center hidden mb-6 group-hover:flex">
                     <span className="z-10 p-3 text-md leading-none rounded-lg text-white whitespace-no-wrap bg-gradient-to-r from-blue-700 to-red-700 shadow-lg">
@@ -56,130 +77,35 @@ export default function DisplayMovie( { movie, tv, people } : any) {
             </a>
         </div>
     );
-
-    const crewarr: (string | number)[][] = [];
-    var counter = 0;
-    tv.results.forEach((movie: { name: string; popularity: number; poster_path: string; job: string; id: number}) => {
-        var imgurl = "";
-        if (movie.poster_path == null){
-            imgurl = "https://eu.ui-avatars.com/api/?name=" + movie.name;
-        } else {
-            imgurl = baseimg + movie.poster_path;
-        }
-        crewarr.push([movie.name, movie.popularity, imgurl, movie.job, movie.id, counter])
-        counter++;
-    });
-    crewarr.sort(compareSecondColumn);
-
-    const [crewpage, setCrewPage] = useState(1);
-    const [crewperpage] = useState(8);
-    const indexoflastcrew = crewpage * crewperpage;
-    const indexoffirstcrew = indexoflastcrew - crewperpage;
-    const currentcrew = crewarr.slice(indexoffirstcrew, indexoflastcrew)
-    const crewPageNumbers = [];
-    for (let i = 1; i <= Math.ceil(crewarr.length / crewperpage); i++) {
-        crewPageNumbers.push(i);
-    }
-    const crewpaginate = (number: number) => {
-        if (number >= 1 && number <= Math.ceil(crewarr.length / crewperpage)) {
-            setCrewPage(number);
-        }
-    };
-    const display_crew = currentcrew.map((person) =>
-        <div key={person[5]} className="group cursor-pointer relative inline-block text-center">
-            <a href={"/tv/" + person[4]}>
-                <img id={person[4].toString()} src={person[2].toString()} alt={person[0].toString()} className="rounded-3xl w-48 p-2 h-70" />
-                <div className="absolute bottom-0 flex-col items-center hidden mb-6 group-hover:flex">
-                    <span className="z-10 p-3 text-md leading-none rounded-lg text-white whitespace-no-wrap bg-gradient-to-r from-blue-700 to-red-700 shadow-lg">
-                        {person[0]}
-                    </span>
-                </div>
-            </a>
-        </div>
-    );
-
-    const personarr: (string | number)[][] = [];
-    var counter = 0;
-    people.results.forEach((person: { original_name: string; popularity: number; profile_path: string; job: string; id: number}) => {
-        var imgurl = "";
-        if (person.profile_path == null){
-            imgurl = "https://eu.ui-avatars.com/api/?name=" + person.original_name;
-        } else {
-            imgurl = baseimg + person.profile_path;
-        }
-        personarr.push([person.original_name, person.popularity, imgurl, person.job, person.id, counter])
-        counter++;
-    });
-    personarr.sort(compareSecondColumn);
-
-    const [personpage, setPeoplePage] = useState(1);
-    const [peopleperpage] = useState(8);
-    const indexoflastperson = personpage * peopleperpage;
-    const indexoffirstperson = indexoflastperson - peopleperpage;
-    const currentpeople = personarr.slice(indexoffirstperson, indexoflastperson)
-    const peoplePageNumbers = [];
-    for (let i = 1; i <= Math.ceil(personarr.length / peopleperpage); i++) {
-        peoplePageNumbers.push(i);
-    }
-    const peoplePaginate = (number: number) => {
-        if (number >= 1 && number <= Math.ceil(personarr.length / peopleperpage)) {
-            setPeoplePage(number);
-        }
-    };
-    const display_people = currentpeople.map((person) =>
-        <div key={person[5]} className="group cursor-pointer relative inline-block text-center pb-10">
-            <a href={"/person/" + person[4]}>
-                <img id={person[4].toString()} src={person[2].toString()} alt={person[0].toString()} className="rounded-3xl w-48 p-2 h-70" />
-                <div className="absolute bottom-0 flex-col items-center hidden mb-6 group-hover:flex">
-                    <span className="z-10 p-3 text-md leading-none rounded-lg text-white whitespace-no-wrap bg-gradient-to-r from-blue-700 to-red-700 shadow-lg">
-                        {person[0]}
-                    </span>
-                </div>
-            </a>
-        </div>
-    );
     return (
         <>
             <div className="grid p-2 sm:grid-cols-1 md:grid-cols-1 mt-28">
+                <div className="mb-3 justify-center flex text-center m-auto">
+                    <div className="input-group grid items-stretch w-full mb-4 grid-cols-6">
+                        <input value={currentinput} onChange={(e) => InputChange(e.target.value)} type="search" className="col-span-5 form-control relative flex-auto min-w-0 block w-full px-3 py-1.5 text-lg font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded-l-lg transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none" placeholder="Search People" aria-label="Search" aria-describedby="button-addon2" />
+                        <button onClick={()=> setQuery(currentinput)} className="btn px-6 py-2.5 bg-blue-600 text-white font-medium text-lg leading-tight uppercase rounded-r-lg shadow-md hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700  focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out flex items-center" type="button" id="button-addon2">
+                            <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="search" className="w-4" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+                                <path fill="currentColor" d="M505 442.7L405.3 343c-4.5-4.5-10.6-7-17-7H372c27.6-35.3 44-79.7 44-128C416 93.1 322.9 0 208 0S0 93.1 0 208s93.1 208 208 208c48.3 0 92.7-16.4 128-44v16.3c0 6.4 2.5 12.5 7 17l99.7 99.7c9.4 9.4 24.6 9.4 33.9 0l28.3-28.3c9.4-9.4 9.4-24.6.1-34zM208 336c-70.7 0-128-57.2-128-128 0-70.7 57.2-128 128-128 70.7 0 128 57.2 128 128 0 70.7-57.2 128-128 128z"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
                 <div className="col-span-2 sm:ml-0 md:ml-5 lg:ml-10" ref={parent}>
                     <div className="group cursor-pointer relative p-2 grid grid-cols-1 text-left items-stretch">
                         <span>
-                            <span className="text-3xl leading-8 font-bold pr-4">Trending Movies: </span>
-                            <button onClick={() => paginate(castpage-1)} className="inline-block rounded-lg bg-yellow-600 px-4 py-1.5 text-base font-semibold leading-7 text-black shadow-md hover:bg-orange-500 hover:text-white hover:scale-110 ease-in-out transition">Prev</button>
-                            <span className="font-normal text-sm"> {castpage + " / " + Math.ceil(movie_arr.length / castperpage)} </span>
-                            <button onClick={() => paginate(castpage+1)} className="inline-block rounded-lg bg-yellow-600 px-4 py-1.5 text-base font-semibold leading-7 text-black shadow-md hover:bg-orange-500 hover:text-white hover:scale-110 ease-in-out transition">Next</button>
+                            {query != "" && (
+                                <>
+                                    <span className="text-3xl leading-8 font-bold pr-4">People Results - &quot;{query}&quot;: </span>
+                                </>
+                            )}
+                            {query == "" && (
+                                <span className="text-3xl leading-8 font-bold pr-4">Trending People: </span>
+                            )}
                         </span>
                     </div>
                     {display_movies}
-                    <div className="group cursor-pointer relative p-2 grid grid-cols-1 text-left items-stretch">
-                        <span>
-                            <span className="text-3xl leading-8 font-bold pr-4">Trending TV Shows: </span>
-                            <button onClick={() => crewpaginate(crewpage-1)} className="inline-block rounded-lg bg-yellow-600 px-4 py-1.5 text-base font-semibold leading-7 text-black shadow-md hover:bg-orange-500 hover:text-white hover:scale-110 ease-in-out transition">Prev</button>
-                            <span className="font-normal text-sm"> {crewpage + " / " + Math.ceil(crewarr.length / crewperpage)} </span>
-                            <button onClick={() => crewpaginate(crewpage+1)} className="inline-block rounded-lg bg-yellow-600 px-4 py-1.5 text-base font-semibold leading-7 text-black shadow-md hover:bg-orange-500 hover:text-white hover:scale-110 ease-in-out transition">Next</button>
-                        </span>
-                    </div>
-                    {display_crew}
-                    <div className="group cursor-pointer relative p-2 grid grid-cols-1 text-left items-stretch">
-                        <span>
-                            <span className="text-3xl leading-8 font-bold pr-4">Trending People: </span>
-                            <button onClick={() => peoplePaginate(personpage-1)} className="inline-block rounded-lg bg-yellow-600 px-4 py-1.5 text-base font-semibold leading-7 text-black shadow-md hover:bg-orange-500 hover:text-white hover:scale-110 ease-in-out transition">Prev</button>
-                            <span className="font-normal text-sm"> {personpage + " / " + Math.ceil(personarr.length / peopleperpage)} </span>
-                            <button onClick={() => peoplePaginate(personpage+1)} className="inline-block rounded-lg bg-yellow-600 px-4 py-1.5 text-base font-semibold leading-7 text-black shadow-md hover:bg-orange-500 hover:text-white hover:scale-110 ease-in-out transition">Next</button>
-                        </span>
-                    </div>
-                    {display_people}
                 </div>
             </div>
         </>
     )
-}
-
-function compareSecondColumn(a: any, b: any) {
-    if (a[1] === b[1]) {
-        return 0;
-    }
-    else {
-        return (b[1] < a[1]) ? -1 : 1;
-    }
 }
