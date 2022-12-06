@@ -9,7 +9,7 @@ import { useEffect, useState } from "react";
 
 export async function getServerSideProps() {
     // Fetch data from external API
-    const movie = await fetch("https://api.themoviedb.org/3/trending/movie/week?api_key=" + process.env.REACT_APP_API_URL?.toString()).then((response) => response.json());
+    const movie = await fetch("https://api.themoviedb.org/3/trending/movie/week?api_key=" + process.env.NEXT_PUBLIC_APIKEY?.toString()).then((response) => response.json());
     const type = "movie";
     const query = "";
     // Pass data to the page via props
@@ -19,8 +19,8 @@ export async function getServerSideProps() {
 export default function MoviesHome( { mediatype, query, movie } : any) {
     useEffect(() => {
         const fetchData = async () => {
-            console.log(process.env.BASE_URL?.toString() + "api/getSearchResult")
-            const getResult = await axios.get(process.env.REACT_APP_BASE_URL?.toString() + "api/getSearchResult", {params: {searchterm: query, type: mediatype}});
+            console.log(process.env.NEXT_PUBLIC_BASEURL?.toString() + "api/getSearchResult")
+            const getResult = await axios.get(process.env.NEXT_PUBLIC_BASEURL?.toString() + "api/getSearchResult", {params: {searchterm: query, type: mediatype}});
             console.log(getResult, query)
         }
         fetchData();

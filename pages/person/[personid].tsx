@@ -6,8 +6,8 @@ import { useState } from "react";
 export async function getServerSideProps({ query } : any) {
     // Fetch data from external API
     const personid = query.personid;
-    const main = await fetch("https://api.themoviedb.org/3/person/" + personid + "?api_key=" + process.env.REACT_APP_API_URL?.toString()).then((response) => response.json());
-    const credits = await fetch("https://api.themoviedb.org/3/person/" + personid + "/combined_credits?api_key=" + process.env.REACT_APP_API_URL?.toString()).then((response) => response.json());
+    const main = await fetch("https://api.themoviedb.org/3/person/" + personid + "?api_key=" + process.env.NEXT_PUBLIC_APIKEY?.toString()).then((response) => response.json());
+    const credits = await fetch("https://api.themoviedb.org/3/person/" + personid + "/combined_credits?api_key=" + process.env.NEXT_PUBLIC_APIKEY?.toString()).then((response) => response.json());
 
     // Pass data to the page via props
     return { props: { main, credits } }
