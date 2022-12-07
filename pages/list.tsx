@@ -9,27 +9,31 @@ import { ParsedUrlQuery } from 'querystring';
 import axios from 'axios';
 
 export const getServerSideProps = async (ctx: GetServerSidePropsContext<ParsedUrlQuery, PreviewData> | { req: NextApiRequest; res: NextApiResponse<any>; }) => {
-  // Create authenticated Supabase Client
-  const supabase = createServerSupabaseClient(ctx)
-  // Check if we have a session
-  const {
-    data: { session },
-  } = await supabase.auth.getSession()
+    // Create authenticated Supabase Client
+    const supabase = createServerSupabaseClient(ctx)
+    // Check if we have a session
+    const {
+        data: { session },
+    } = await supabase.auth.getSession()
 
-  const { data } = await supabase
+    if (!session)
+        return {
+            props: {
+                userlists: []
+            }
+        }
+
+    const { data } = await supabase
     .from('listcontent')
     .select('listid, listcontent')
     .eq('userid', session?.user.id)
 
-  if (!session)
-    return
-
-  return {
-    props: {
-        session: session,
-        userlists: data
-    },
-  }
+    return {
+        props: {
+            session: session,
+            userlists: data
+        },
+    }
 }
 
 async function CreateList(userid: string, router: any) { 

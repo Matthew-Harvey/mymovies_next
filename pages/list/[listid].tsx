@@ -1,12 +1,40 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react'
-import { Auth, ThemeSupa } from '@supabase/auth-ui-react'
-import { useRouter } from 'next/router';
+import { useSupabaseClient } from '@supabase/auth-helpers-react';
+import { Auth, ThemeSupa } from '@supabase/auth-ui-react';
+import { createServerSupabaseClient } from "@supabase/auth-helpers-nextjs";
 
+export const getServerSideProps = async (ctx: any) => {
+    // Create authenticated Supabase Client
+    const supabase = createServerSupabaseClient(ctx)
+    // Check if we have a session
+    const {
+      data: { session },
+    } = await supabase.auth.getSession()
 
-export default function Lists() {
+    if (!session)
+      return {
+        props: {}
+    }
+    
+    const listid = ctx.query.listid;
+  
+    const { data } = await supabase
+      .from('listcontent')
+      .select('listcontent')
+      .eq('listid', listid)
+  
+    return {
+      props: {
+          session: session,
+          listcontent: data
+      },
+    }
+}
+
+export default function Lists({session, listcontent}: any) {
     const supabase = useSupabaseClient();
-    const session = useSession();
+    listcontent = listcontent[0].listcontent;
+    console.log(listcontent)
     return (
         <>
             <div className='grid p-2 sm:grid-cols-1 md:grid-cols-1 mt-28 max-w-4xl m-auto text-center'>
@@ -38,31 +66,12 @@ export default function Lists() {
                     </>
                 ) : (
                     <>
-                        <p>List Info</p>
+                        <p className='p-6'>List Info</p>
+                        <p>{listcontent.listname}</p>
+                        <p>{listcontent.created}</p>
                     </>
                 )}
             </div>
         </>
     )
-}
-
-function makeid(length: number) {
-    var result = '';
-    var characters = '0123456789';
-    var charactersLength = characters.length;
-    for ( var i = 0; i < length; i++ ) {
-        result += characters.charAt(Math.floor(Math.random() * charactersLength));
-    }
-    return result;
-}   
-async function CreateList(userid: string, supabase: any) { 
-    const listid = makeid(12);
-    const {error} = await supabase
-        .from('userlists')
-        .insert({ userid: userid, listid: listid})
-    const router = useRouter();
-    router.push({
-        pathname: '/list/[listid]',
-        query: { listid: listid },
-    })
 }
