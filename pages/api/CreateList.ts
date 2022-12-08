@@ -10,7 +10,7 @@ export default async function CreateList(req: NextApiRequest, res: NextApiRespon
     await supabase
         .from('listcontent')
         .insert({ userid: userid, listid: listid, listcontent: 
-            {listname: "myList", created: datecreated, listid: listid, summary: "This is a template summary, please click view list below to edit this..."}
+            {listname: "myList", created: datecreated, listid: listid, summary: "This is a template summary, please click view list below to edit this...", content: {}}
         })
     res.status(200).json({listid: listid});
 }
