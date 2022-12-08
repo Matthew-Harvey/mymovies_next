@@ -1,50 +1,47 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import { useSupabaseClient } from '@supabase/auth-helpers-react';
+import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
 import { Auth, ThemeSupa } from '@supabase/auth-ui-react';
-import { createServerSupabaseClient } from "@supabase/auth-helpers-nextjs";
+import { useRouter } from 'next/router';
+import { createServerSupabaseClient } from '@supabase/auth-helpers-nextjs'
+import { GetServerSidePropsContext, PreviewData, NextApiRequest, NextApiResponse } from 'next';
+import { ParsedUrlQuery } from 'querystring';
 import { useState } from 'react';
-import { Reorder } from "framer-motion";
+import { Reorder } from 'framer-motion';
 
 
-export const getServerSideProps = async (ctx: any) => {
+export const getServerSideProps = async (ctx: GetServerSidePropsContext<ParsedUrlQuery, PreviewData> | { req: NextApiRequest; res: NextApiResponse<any>; }) => {
     // Create authenticated Supabase Client
     const supabase = createServerSupabaseClient(ctx)
     // Check if we have a session
     const {
-      data: { session },
+        data: { session },
     } = await supabase.auth.getSession()
 
     if (!session)
-      return {
-        props: {}
-    }
-    
-    const listid = ctx.query.listid;
-  
-    const { data } = await supabase
-      .from('listcontent')
-      .select('listcontent')
-      .eq('listid', listid)
-  
-    if (data == null) {
         return {
-            redirect: {
-              permanent: false,
-              destination: "/list"
+            props: {
+                userlists: [],
+                loggedin: false
             }
         }
-    }
+
+    const { data } = await supabase
+    .from('listcontent')
+    .select('listid, listcontent')
+    .eq('userid', session?.user.id)
 
     return {
-      props: {
-          session: session,
-          listcontent: data
-      },
+        props: {
+            userlists: data,
+            loggedin: true,
+        },
     }
 }
 
-export default function Lists({session, listcontent}: any) {
+export default function Lists({listcontent, loggedin}: any) {
     const supabase = useSupabaseClient();
+    const router = useRouter();
+    const session = useSession();
     listcontent = listcontent[0].listcontent;
     const editbool = useState<Boolean>(true);
     const [items, setItems] = useState([0, 1, 2, 3])
@@ -83,30 +80,14 @@ export default function Lists({session, listcontent}: any) {
                             <p className='p-2 text-center font-semibold text-5xl'>{listcontent.listname}</p>
                             <p className='p-2 text-center font-medium text-sm'>{listcontent.summary}</p>
                         </div>
-                        <div className='p-2 bg-slate-700 text-white justify-center'>
-                            <div className='grid grid-cols-8'>
-                                <h1 className='text-4xl p-2'>A*</h1>
-                            </div>
-                            <div className='grid grid-cols-8 bg-slate-700 text-white'>
-                                <h1 className='text-4xl p-2'>A</h1>
-                            </div>
-                            <div className='grid grid-cols-8 bg-slate-700 text-white'>
-                                <h1 className='text-4xl p-2'>B</h1>
-                            </div>
-                            <div className='grid grid-cols-8 bg-slate-700 text-white'>
-                                <h1 className='text-4xl p-2'>C</h1>
-                            </div>
-                            <div className='grid grid-cols-8 bg-slate-700 text-white'>
-                                <h1 className='text-4xl p-2'>D</h1>
-                            </div>
-                            <div className='grid grid-cols-8 bg-slate-700 text-white'>
-                                <h1 className='text-4xl p-2'>None</h1>
-                            </div>
-                        </div>
                         <Reorder.Group axis="y" values={items} onReorder={setItems}>
                             {items.map((item) => (
                                 <Reorder.Item key={item} value={item}>
-                                    {item}
+                                    <>
+                                        <div className='bg-slate-700 p-5 text-white'>
+                                            {item}
+                                        </div>
+                                    </>
                                 </Reorder.Item>
                             ))}
                         </Reorder.Group>

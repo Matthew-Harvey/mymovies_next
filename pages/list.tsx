@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react-hooks/rules-of-hooks */
-import { useSupabaseClient } from '@supabase/auth-helpers-react';
+import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
 import { Auth, ThemeSupa } from '@supabase/auth-ui-react';
 import { useRouter } from 'next/router';
 import { createServerSupabaseClient } from '@supabase/auth-helpers-nextjs'
@@ -19,7 +19,8 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext<ParsedUr
     if (!session)
         return {
             props: {
-                userlists: []
+                userlists: [],
+                loggedin: false
             }
         }
 
@@ -30,8 +31,8 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext<ParsedUr
 
     return {
         props: {
-            session: session,
-            userlists: data
+            userlists: data,
+            loggedin: true,
         },
     }
 }
@@ -44,9 +45,10 @@ async function CreateList(userid: string, router: any) {
     })
 }
 
-export default function Lists({session, userlists}: any) {
+export default function Lists({userlists, loggedin}: any) {
     const supabase = useSupabaseClient();
     const router = useRouter();
+    const session = useSession();
     // get lists that user created.
     const display_lists = userlists.map((list: any) =>
         <>
@@ -67,6 +69,12 @@ export default function Lists({session, userlists}: any) {
             </div>
         </>
     );
+    if (session != undefined && loggedin == false) {
+        router.push({
+            pathname: '/list',
+            query: {},
+        })
+    }
     return (
         <>
             <div className='grid p-2 sm:grid-cols-1 md:grid-cols-1 mt-28 m-auto text-center'>
@@ -77,7 +85,7 @@ export default function Lists({session, userlists}: any) {
                             <br />
                             email - matthewtlharvey@gmail.com
                             <br />
-                            pass - demo
+                            pass - demouser
                         </p>
                         <div className='max-w-xl m-auto text-center text-lg'>
                             <Auth
