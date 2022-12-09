@@ -67,8 +67,13 @@ export default function Lists({listcontent, loggedin, serveruser, movie, mediaty
     const supabase = useSupabaseClient();
     const router = useRouter();
     const session = useSession();
+
+    let popped = "";
+    let itemarr = [];
     try{
         listcontent = listcontent[0].listcontent;
+        itemarr = listcontent.items.split("$%$");
+        popped = itemarr.pop();
     } catch{
         listcontent = "";
     }
@@ -84,9 +89,6 @@ export default function Lists({listcontent, loggedin, serveruser, movie, mediaty
     const SummaryChange = (value: any) => {
         setSummary(value);
     }
-    let itemarr = listcontent.items.split("$%$");
-    let popped = itemarr.pop();
-    //listcontent.item.split("$%$");
     const [items, setItems] = useState(itemarr);
     if (session != undefined && loggedin == false) {
         router.push({
