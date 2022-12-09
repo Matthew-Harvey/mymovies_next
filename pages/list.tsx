@@ -52,8 +52,8 @@ export default function Lists({userlists, loggedin}: any) {
     // get lists that user created.
     const display_lists = userlists.map((list: any) =>
         <>
-            <div className="flex justify-center p-6">
-                <div key={list.listid} className="block p-6 rounded-lg shadow-xl bg-white max-w-3xl">
+            <div key={list.listid} className="flex justify-center p-6">
+                <div className="block p-6 rounded-lg shadow-xl bg-white max-w-3xl">
                     <h5 className="text-gray-900 text-xl leading-tight font-medium mb-2">{list.listcontent.listname}</h5>
                     <p className="text-gray-700 text-base mb-4">
                         {list.listcontent.summary}
