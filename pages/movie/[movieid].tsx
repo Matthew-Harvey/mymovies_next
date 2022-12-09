@@ -287,12 +287,12 @@ function MovieVideos ({ videos } : any) {
         }
     };
     const videoresult = currentvideo.map((video) =>
-        <div key={video[2]} className="p-2">
+        <div key={video[2]} className="p-2 sm:w-full col-span-2 object-cover">
             <ReactPlayer url={video[1].toString()} width="100%" controls={true} />
         </div>
     );
     return (
-        <div className="grid md:grid-cols-2 sm:grid-cols-2 p-2">
+        <div className="grid md:grid-cols-3 sm:grid-cols-2 p-2">
             {video_arr.length != 0 &&
                 <>
                     <div className="text-3xl leading-8 font-bold pr-4">
