@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities */
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @next/next/no-img-element */
 /* eslint-disable react-hooks/rules-of-hooks */
@@ -7,7 +8,6 @@ import { useRouter } from 'next/router';
 import { createServerSupabaseClient } from '@supabase/auth-helpers-nextjs'
 import { useEffect, useState } from 'react';
 import { Reorder } from 'framer-motion';
-import { useAutoAnimate } from '@formkit/auto-animate/react';
 import axios from 'axios';
 
 const baseimg = "https://image.tmdb.org/t/p/w500";
@@ -154,7 +154,7 @@ export default function Lists({listcontent, loggedin, serveruser, movie, mediaty
     const display_movies = currentcast.map((movie) =>
         <div key={movie[5]} className="group cursor-pointer relative inline-block text-center">
             <a onClick={()=> setItems(items => [...items, movie[0].toString()])}>
-                <img id={movie[4].toString()} src={movie[2].toString()} alt={movie[0].toString()} className="rounded-3xl w-48 p-2 h-70" />
+                <img id={movie[4].toString()} src={movie[2].toString()} alt={movie[0].toString()} className="rounded-3xl w-40 p-2 h-70" />
                 <div className="absolute bottom-0 flex-col items-center hidden mb-6 group-hover:flex">
                     <span className="z-10 p-3 text-md leading-none rounded-lg text-white whitespace-no-wrap bg-gradient-to-r from-blue-700 to-red-700 shadow-lg">
                         {movie[0]}
@@ -200,6 +200,17 @@ export default function Lists({listcontent, loggedin, serveruser, movie, mediaty
                                     <p className='p-2 text-center font-semibold text-5xl'>{listcontent.listname}</p>
                                     <br />
                                     <p className='p-2 text-center font-medium text-sm'>{listcontent.summary}</p>
+                                    <Reorder.Group axis="y" values={items} onReorder={setItems}>
+                                        {items.map((item) => (
+                                            <Reorder.Item key={item} value={item}>
+                                                <>
+                                                    <div className='bg-slate-700 p-5 text-white'>
+                                                        {item}
+                                                    </div>
+                                                </>
+                                            </Reorder.Item>
+                                        ))}
+                                    </Reorder.Group>
                                 </>
                             }
                             {editbool == true &&
@@ -209,31 +220,43 @@ export default function Lists({listcontent, loggedin, serveruser, movie, mediaty
                                         <br />
                                         <input className='p-2 text-center font-medium text-sm' placeholder={listcontent.summary} value={summary} onChange={(e) => SummaryChange(e.target.value)} />
                                     </div>
-                                    <div className="mb-3 justify-center flex text-center m-auto max-w-4xl">
-                                        <div className="input-group grid items-stretch w-full mb-4 grid-cols-6">
-                                            <input value={currentinput} onChange={(e) => InputChange(e.target.value)} type="search" className="col-span-5 form-control relative flex-auto min-w-0 block w-full px-3 py-1.5 text-lg font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded-l-lg transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none" placeholder="Search Movies" aria-label="Search" aria-describedby="button-addon2" />
-                                            <button onClick={()=> setQuery(currentinput)} className="btn px-6 py-2.5 bg-blue-600 text-white font-medium text-lg leading-tight uppercase rounded-r-lg shadow-md hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700  focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out flex items-center" type="button" id="button-addon2">
-                                                <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="search" className="w-4" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-                                                    <path fill="currentColor" d="M505 442.7L405.3 343c-4.5-4.5-10.6-7-17-7H372c27.6-35.3 44-79.7 44-128C416 93.1 322.9 0 208 0S0 93.1 0 208s93.1 208 208 208c48.3 0 92.7-16.4 128-44v16.3c0 6.4 2.5 12.5 7 17l99.7 99.7c9.4 9.4 24.6 9.4 33.9 0l28.3-28.3c9.4-9.4 9.4-24.6.1-34zM208 336c-70.7 0-128-57.2-128-128 0-70.7 57.2-128 128-128 70.7 0 128 57.2 128 128 0 70.7-57.2 128-128 128z"></path>
-                                                </svg>
-                                            </button>
+                                    <input type="checkbox" id="my-modal" className="modal-toggle" />
+                                    <div className="modal">
+                                        <div className="modal-box">
+                                            <div className="mb-3 justify-center flex text-center m-auto max-w-4xl">
+                                                <div className="input-group grid items-stretch w-full mb-4 grid-cols-6">
+                                                    <input value={currentinput} onChange={(e) => InputChange(e.target.value)} type="search" className="col-span-5 form-control relative flex-auto min-w-0 block w-full px-3 py-1.5 text-lg font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded-l-lg transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none" placeholder="Search Movie/TV/Person" aria-label="Search" aria-describedby="button-addon2" />
+                                                    <button onClick={()=> setQuery(currentinput)} className="btn px-6 py-2.5 bg-blue-600 text-white font-medium text-lg leading-tight uppercase rounded-r-lg shadow-md hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700  focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out flex items-center" type="button" id="button-addon2">
+                                                        <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="search" className="w-4" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+                                                            <path fill="currentColor" d="M505 442.7L405.3 343c-4.5-4.5-10.6-7-17-7H372c27.6-35.3 44-79.7 44-128C416 93.1 322.9 0 208 0S0 93.1 0 208s93.1 208 208 208c48.3 0 92.7-16.4 128-44v16.3c0 6.4 2.5 12.5 7 17l99.7 99.7c9.4 9.4 24.6 9.4 33.9 0l28.3-28.3c9.4-9.4 9.4-24.6.1-34zM208 336c-70.7 0-128-57.2-128-128 0-70.7 57.2-128 128-128 70.7 0 128 57.2 128 128 0 70.7-57.2 128-128 128z"></path>
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            {display_movies}
+                                            <div className="modal-action">
+                                                <label htmlFor="my-modal" className="btn">Close</label>
+                                            </div>
                                         </div>
                                     </div>
-                                    {display_movies}
+                                    <Reorder.Group axis="y" values={items} onReorder={setItems}>
+                                        {items.map((item) => (
+                                            <Reorder.Item key={item} value={item}>
+                                                <>
+                                                    <div className='bg-slate-700 p-5 text-white'>
+                                                        {item}
+                                                    </div>
+                                                </>
+                                            </Reorder.Item>
+                                        ))}
+                                    </Reorder.Group>
+                                    <div className='text-center grid grid-cols-2 gap-2 p-2 justify-center'>
+                                        <label htmlFor="my-modal" className="btn p-2 rounded-lg bg-blue-600 text-white font-medium text-lg leading-tight shadow-md hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700  focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out flex items-center">Add Item</label>
+                                        <button className="btn p-2 rounded-lg bg-blue-600 text-white font-medium text-lg leading-tight shadow-md hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700  focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out flex items-center">Save</button>
+                                    </div>
                                 </>
                             }
                         </div>
-                        <Reorder.Group axis="y" values={items} onReorder={setItems}>
-                            {items.map((item) => (
-                                <Reorder.Item key={item} value={item}>
-                                    <>
-                                        <div className='bg-slate-700 p-5 text-white'>
-                                            {item}
-                                        </div>
-                                    </>
-                                </Reorder.Item>
-                            ))}
-                        </Reorder.Group>
                     </>
                 )}
             </div>
