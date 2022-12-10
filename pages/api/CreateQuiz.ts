@@ -4,15 +4,15 @@ import { NextApiRequest, NextApiResponse } from "next";
 
 export default async function CreateList(req: NextApiRequest, res: NextApiResponse<any>) {
     const userid = req.query.userid;
-    const listid = makeid(12);
+    const quizid = makeid(12);
     const datecreated = new Date().toLocaleTimeString() + " " + new Date().toLocaleDateString();
     const supabase = createBrowserSupabaseClient();
     await supabase
-        .from('listcontent')
-        .insert({ userid: userid, listid: listid, listcontent: 
-            {listname: "myList", created: datecreated, listid: listid, summary: "This is a template summary, please click view list below to edit this...", items: ""}
+        .from('quizcontent')
+        .insert({ userid: userid, quizid: quizid, quizcontent: 
+            {quizname: "myList", created: datecreated, quizid: quizid, summary: "This is a template summary, please click view list below to edit this...", items: ""}
         })
-    res.status(200).json({listid: listid});
+    res.status(200).json({quizid: quizid});
 }
 
 function makeid(length: number) {

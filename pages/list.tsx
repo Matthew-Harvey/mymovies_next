@@ -75,6 +75,13 @@ export default function Lists({userlists, loggedin}: any) {
             query: {},
         })
     }
+    function SignOut(){
+        supabase.auth.signOut();
+        router.push({
+            pathname: '/list',
+            query: {},
+        })
+    }
     return (
         <>
             <div className='grid p-2 sm:grid-cols-1 md:grid-cols-1 mt-28 m-auto text-center'>
@@ -108,7 +115,11 @@ export default function Lists({userlists, loggedin}: any) {
                     <>
                         <div className='max-w-lg p-10 justify-center m-auto'>
                             <p className='mb-6 text-lg font-semibold'>Logged in using - {session.user.email}</p>
-                            <p className='mb-6 text-md font-medium'>Please note that all lists are publicly accessible via the URL, but only editible by the author.</p>
+                            <button onClick={()=> SignOut()} 
+                                className="inline-block rounded-lg bg-red-600 px-4 py-1.5 text-base font-semibold leading-7 text-black shadow-md hover:bg-red-500 hover:text-white hover:scale-110 ease-in-out transition">
+                                    Sign Out
+                            </button>
+                            <p className='p-6 text-md font-medium'>Please note that all lists are publicly accessible via the URL, but only editible by the author.</p>
                             <button onClick={()=> CreateList(session.user.id, router)} 
                                 className="inline-block rounded-lg bg-yellow-600 px-4 py-1.5 text-base font-semibold leading-7 text-black shadow-md hover:bg-orange-500 hover:text-white hover:scale-110 ease-in-out transition">
                                     Create a new list

@@ -1,185 +1,136 @@
-/* eslint-disable @next/next/no-img-element */
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable react-hooks/rules-of-hooks */
+import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
+import { Auth, ThemeSupa } from '@supabase/auth-ui-react';
+import { useRouter } from 'next/router';
+import { createServerSupabaseClient } from '@supabase/auth-helpers-nextjs'
+import { GetServerSidePropsContext, PreviewData, NextApiRequest, NextApiResponse } from 'next';
+import { ParsedUrlQuery } from 'querystring';
+import axios from 'axios';
 
-import { useState } from "react";
-import { useAutoAnimate } from '@formkit/auto-animate/react';
+export const getServerSideProps = async (ctx: GetServerSidePropsContext<ParsedUrlQuery, PreviewData> | { req: NextApiRequest; res: NextApiResponse<any>; }) => {
+    // Create authenticated Supabase Client
+    const supabase = createServerSupabaseClient(ctx)
+    // Check if we have a session
+    const {
+        data: { session },
+    } = await supabase.auth.getSession()
 
-const baseimg = "https://image.tmdb.org/t/p/w500";
+    if (!session)
+        return {
+            props: {
+                userquiz: [],
+                loggedin: false
+            }
+        }
 
-export async function getServerSideProps({ query } : any) {
-    // Fetch data from external API
-    const movie = await fetch("https://api.themoviedb.org/3/trending/movie/week?api_key=" + process.env.NEXT_PUBLIC_APIKEY?.toString()).then((response) => response.json());
-    const tv = await fetch("https://api.themoviedb.org/3/trending/tv/week?api_key=" + process.env.NEXT_PUBLIC_APIKEY?.toString()).then((response) => response.json());
-    const people = await fetch("https://api.themoviedb.org/3/trending/person/week?api_key=" + process.env.NEXT_PUBLIC_APIKEY?.toString()).then((response) => response.json());
-    // Pass data to the page via props
-    return { props: { movie, tv, people} }
+    const { data } = await supabase
+    .from('quizcontent')
+    .select('quizid, quizcontent')
+    .eq('userid', session?.user.id)
+
+    return {
+        props: {
+            userquiz: data,
+            loggedin: true,
+        },
+    }
 }
 
-export default function DisplayMovie( { movie, tv, people } : any) {
-    const [parent] = useAutoAnimate<HTMLDivElement>();
+async function CreateQuiz(userid: string, router: any) { 
+    const getResult = await axios.get(process.env.NEXT_PUBLIC_BASEURL?.toString() + "api/CreateQuiz", {params: {userid: userid}});
+    router.push({
+        pathname: '/quiz/[quizid]',
+        query: { quizid: getResult.data.quizid },
+    })
+}
 
-    const movie_arr: (string | number)[][] = [];
-    var counter = 0;
-    movie.results.forEach((movie: { title: string; popularity: number; poster_path: string; job: string; id: number}) => {
-        var imgurl = "";
-        if (movie.poster_path == null){
-            imgurl = "https://eu.ui-avatars.com/api/?name=" + movie.title;
-        } else {
-            imgurl = baseimg + movie.poster_path;
-        }
-        movie_arr.push([movie.title, movie.popularity, imgurl, movie.job, movie.id, counter])
-        counter++;
-    });
-    
-    const [castpage, setCastPage] = useState(1);
-    const [castperpage] = useState(8);
-    const indexoflast = castpage * castperpage;
-    const indexoffirst = indexoflast - castperpage;
-    const currentcast = movie_arr.slice(indexoffirst, indexoflast)
-    const pageNumbers = [];
-    for (let i = 1; i <= Math.ceil(movie_arr.length / castperpage); i++) {
-        pageNumbers.push(i);
-    }
-    const paginate = (number: number) => {
-        if (number >= 1 && number <= Math.ceil(movie_arr.length / castperpage)) {
-            setCastPage(number);
-        }
-    };
-    const display_movies = currentcast.map((movie) =>
-        <div key={movie[5]} className="group cursor-pointer relative inline-block text-center">
-            <a href={"/movie/" + movie[4]}>
-                <img id={movie[4].toString()} src={movie[2].toString()} alt={movie[0].toString()} className="rounded-3xl w-48 p-2 h-70" />
-                <div className="absolute bottom-0 flex-col items-center hidden mb-6 group-hover:flex">
-                    <span className="z-10 p-3 text-md leading-none rounded-lg text-white whitespace-no-wrap bg-gradient-to-r from-blue-700 to-red-700 shadow-lg">
-                        {movie[0]}
-                    </span>
-                </div>
-            </a>
-        </div>
-    );
-
-    const crewarr: (string | number)[][] = [];
-    var counter = 0;
-    tv.results.forEach((movie: { name: string; popularity: number; poster_path: string; job: string; id: number}) => {
-        var imgurl = "";
-        if (movie.poster_path == null){
-            imgurl = "https://eu.ui-avatars.com/api/?name=" + movie.name;
-        } else {
-            imgurl = baseimg + movie.poster_path;
-        }
-        crewarr.push([movie.name, movie.popularity, imgurl, movie.job, movie.id, counter])
-        counter++;
-    });
-    crewarr.sort(compareSecondColumn);
-
-    const [crewpage, setCrewPage] = useState(1);
-    const [crewperpage] = useState(8);
-    const indexoflastcrew = crewpage * crewperpage;
-    const indexoffirstcrew = indexoflastcrew - crewperpage;
-    const currentcrew = crewarr.slice(indexoffirstcrew, indexoflastcrew)
-    const crewPageNumbers = [];
-    for (let i = 1; i <= Math.ceil(crewarr.length / crewperpage); i++) {
-        crewPageNumbers.push(i);
-    }
-    const crewpaginate = (number: number) => {
-        if (number >= 1 && number <= Math.ceil(crewarr.length / crewperpage)) {
-            setCrewPage(number);
-        }
-    };
-    const display_crew = currentcrew.map((person) =>
-        <div key={person[5]} className="group cursor-pointer relative inline-block text-center">
-            <a href={"/tv/" + person[4]}>
-                <img id={person[4].toString()} src={person[2].toString()} alt={person[0].toString()} className="rounded-3xl w-48 p-2 h-70" />
-                <div className="absolute bottom-0 flex-col items-center hidden mb-6 group-hover:flex">
-                    <span className="z-10 p-3 text-md leading-none rounded-lg text-white whitespace-no-wrap bg-gradient-to-r from-blue-700 to-red-700 shadow-lg">
-                        {person[0]}
-                    </span>
-                </div>
-            </a>
-        </div>
-    );
-
-    const personarr: (string | number)[][] = [];
-    var counter = 0;
-    people.results.forEach((person: { original_name: string; popularity: number; profile_path: string; job: string; id: number}) => {
-        var imgurl = "";
-        if (person.profile_path == null){
-            imgurl = "https://eu.ui-avatars.com/api/?name=" + person.original_name;
-        } else {
-            imgurl = baseimg + person.profile_path;
-        }
-        personarr.push([person.original_name, person.popularity, imgurl, person.job, person.id, counter])
-        counter++;
-    });
-    personarr.sort(compareSecondColumn);
-
-    const [personpage, setPeoplePage] = useState(1);
-    const [peopleperpage] = useState(8);
-    const indexoflastperson = personpage * peopleperpage;
-    const indexoffirstperson = indexoflastperson - peopleperpage;
-    const currentpeople = personarr.slice(indexoffirstperson, indexoflastperson)
-    const peoplePageNumbers = [];
-    for (let i = 1; i <= Math.ceil(personarr.length / peopleperpage); i++) {
-        peoplePageNumbers.push(i);
-    }
-    const peoplePaginate = (number: number) => {
-        if (number >= 1 && number <= Math.ceil(personarr.length / peopleperpage)) {
-            setPeoplePage(number);
-        }
-    };
-    const display_people = currentpeople.map((person) =>
-        <div key={person[5]} className="group cursor-pointer relative inline-block text-center pb-10">
-            <a href={"/person/" + person[4]}>
-                <img id={person[4].toString()} src={person[2].toString()} alt={person[0].toString()} className="rounded-3xl w-48 p-2 h-70" />
-                <div className="absolute bottom-0 flex-col items-center hidden mb-6 group-hover:flex">
-                    <span className="z-10 p-3 text-md leading-none rounded-lg text-white whitespace-no-wrap bg-gradient-to-r from-blue-700 to-red-700 shadow-lg">
-                        {person[0]}
-                    </span>
-                </div>
-            </a>
-        </div>
-    );
-    return (
+export default function Quiz({userquiz, loggedin}: any) {
+    const supabase = useSupabaseClient();
+    const router = useRouter();
+    const session = useSession();
+    // get lists that user created.
+    const display_quizes = userquiz.map((list: any) =>
         <>
-            <div className="grid p-2 sm:grid-cols-1 md:grid-cols-1 mt-28">
-                <div className="col-span-2 sm:ml-0 md:ml-5 lg:ml-10" ref={parent}>
-                    <div className="group cursor-pointer relative p-2 grid grid-cols-1 text-left items-stretch">
-                        <span>
-                            <span className="text-3xl leading-8 font-bold pr-4">Trending Movies: </span>
-                            <button onClick={() => paginate(castpage-1)} className="inline-block rounded-lg bg-yellow-600 px-4 py-1.5 text-base font-semibold leading-7 text-black shadow-md hover:bg-orange-500 hover:text-white hover:scale-110 ease-in-out transition">Prev</button>
-                            <span className="font-normal text-sm"> {castpage + " / " + Math.ceil(movie_arr.length / castperpage)} </span>
-                            <button onClick={() => paginate(castpage+1)} className="inline-block rounded-lg bg-yellow-600 px-4 py-1.5 text-base font-semibold leading-7 text-black shadow-md hover:bg-orange-500 hover:text-white hover:scale-110 ease-in-out transition">Next</button>
-                        </span>
-                    </div>
-                    {display_movies}
-                    <div className="group cursor-pointer relative p-2 grid grid-cols-1 text-left items-stretch">
-                        <span>
-                            <span className="text-3xl leading-8 font-bold pr-4">Trending TV Shows: </span>
-                            <button onClick={() => crewpaginate(crewpage-1)} className="inline-block rounded-lg bg-yellow-600 px-4 py-1.5 text-base font-semibold leading-7 text-black shadow-md hover:bg-orange-500 hover:text-white hover:scale-110 ease-in-out transition">Prev</button>
-                            <span className="font-normal text-sm"> {crewpage + " / " + Math.ceil(crewarr.length / crewperpage)} </span>
-                            <button onClick={() => crewpaginate(crewpage+1)} className="inline-block rounded-lg bg-yellow-600 px-4 py-1.5 text-base font-semibold leading-7 text-black shadow-md hover:bg-orange-500 hover:text-white hover:scale-110 ease-in-out transition">Next</button>
-                        </span>
-                    </div>
-                    {display_crew}
-                    <div className="group cursor-pointer relative p-2 grid grid-cols-1 text-left items-stretch">
-                        <span>
-                            <span className="text-3xl leading-8 font-bold pr-4">Trending People: </span>
-                            <button onClick={() => peoplePaginate(personpage-1)} className="inline-block rounded-lg bg-yellow-600 px-4 py-1.5 text-base font-semibold leading-7 text-black shadow-md hover:bg-orange-500 hover:text-white hover:scale-110 ease-in-out transition">Prev</button>
-                            <span className="font-normal text-sm"> {personpage + " / " + Math.ceil(personarr.length / peopleperpage)} </span>
-                            <button onClick={() => peoplePaginate(personpage+1)} className="inline-block rounded-lg bg-yellow-600 px-4 py-1.5 text-base font-semibold leading-7 text-black shadow-md hover:bg-orange-500 hover:text-white hover:scale-110 ease-in-out transition">Next</button>
-                        </span>
-                    </div>
-                    {display_people}
+            <div key={list.listid} className="flex justify-center p-6">
+                <div className="block p-6 rounded-lg shadow-xl bg-white max-w-3xl">
+                    <h5 className="text-gray-900 text-xl leading-tight font-medium mb-2">{list.listcontent.listname}</h5>
+                    <p className="text-gray-700 text-base mb-4">
+                        {list.listcontent.summary}
+                    </p>
+                    <p className='p-2' >Last updated: {list.listcontent.created}</p>
+                    <a href={"/list/" + list.listid}>
+                        <button type="button"
+                            className="inline-block px-6 py-2.5 bg-blue-600 text-white font-medium text-sm leading-tight uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out">
+                            View Quiz
+                        </button>
+                    </a>
                 </div>
             </div>
         </>
+    );
+    if (session != undefined && loggedin == false) {
+        router.push({
+            pathname: '/quiz',
+            query: {},
+        })
+    }
+    function SignOut(){
+        supabase.auth.signOut();
+        router.push({
+            pathname: '/quiz',
+            query: {},
+        })
+    }
+    return (
+        <>
+            <div className='grid p-2 sm:grid-cols-1 md:grid-cols-1 mt-28 m-auto text-center'>
+                {!session ? (
+                    <>
+                        <h1 className='font-semibold text-2xl p-2'>To create/view lists you must login:</h1>
+                        <p>Demo credentials:
+                            <br />
+                            email - matthewtlharvey@gmail.com
+                            <br />
+                            pass - demouser
+                        </p>
+                        <div className='max-w-xl m-auto text-center text-lg'>
+                            <Auth
+                                supabaseClient={supabase}
+                                appearance={{
+                                theme: ThemeSupa,
+                                variables: {
+                                    default: {
+                                    colors: {
+                                        brand: 'red',
+                                        brandAccent: 'darkred',
+                                    },
+                                    },
+                                },
+                                }}
+                            />
+                        </div>
+                    </>
+                ) : (
+                    <>
+                        <div className='max-w-lg p-10 justify-center m-auto'>
+                            <p className='mb-6 text-lg font-semibold'>Logged in using - {session.user.email}</p>
+                            <button onClick={()=> SignOut()} 
+                                className="inline-block rounded-lg bg-red-600 px-4 py-1.5 text-base font-semibold leading-7 text-black shadow-md hover:bg-red-500 hover:text-white hover:scale-110 ease-in-out transition">
+                                    Sign Out
+                            </button>
+                            <p className='p-6 text-md font-medium'>Please note that all quizes are publicly accessible, but only editible by the author.</p>
+                            <button onClick={()=> CreateQuiz(session.user.id, router)} 
+                                className="inline-block rounded-lg bg-yellow-600 px-4 py-1.5 text-base font-semibold leading-7 text-black shadow-md hover:bg-orange-500 hover:text-white hover:scale-110 ease-in-out transition">
+                                    Create a new quiz
+                            </button>
+                        </div>
+                        <div className='p-6 grid sm:grid-cols-1 md:grid-cols-3 max-w-7xl justify-center m-auto'>
+                            {display_quizes}
+                        </div>
+                    </>
+                )}
+            </div>
+        </>
     )
-}
-
-function compareSecondColumn(a: any, b: any) {
-    if (a[1] === b[1]) {
-        return 0;
-    }
-    else {
-        return (b[1] < a[1]) ? -1 : 1;
-    }
 }
