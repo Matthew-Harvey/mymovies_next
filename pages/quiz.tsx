@@ -50,16 +50,16 @@ export default function Quiz({userquiz, loggedin}: any) {
     const router = useRouter();
     const session = useSession();
     // get lists that user created.
-    const display_quizes = userquiz.map((list: any) =>
+    const display_quizes = userquiz.map((quiz: any) =>
         <>
-            <div key={list.listid} className="flex justify-center p-6">
+            <div key={quiz.quizid} className="flex justify-center p-6">
                 <div className="block p-6 rounded-lg shadow-xl bg-white max-w-3xl">
-                    <h5 className="text-gray-900 text-xl leading-tight font-medium mb-2">{list.listcontent.listname}</h5>
+                    <h5 className="text-gray-900 text-xl leading-tight font-medium mb-2">{quiz.quizcontent.quizname}</h5>
                     <p className="text-gray-700 text-base mb-4">
-                        {list.listcontent.summary}
+                        {quiz.quizcontent.summary}
                     </p>
-                    <p className='p-2' >Last updated: {list.listcontent.created}</p>
-                    <a href={"/list/" + list.listid}>
+                    <p className='p-2' >Last updated: {quiz.quizcontent.created}</p>
+                    <a href={"/quiz/" + quiz.quizid}>
                         <button type="button"
                             className="inline-block px-6 py-2.5 bg-blue-600 text-white font-medium text-sm leading-tight uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out">
                             View Quiz
