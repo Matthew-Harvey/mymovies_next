@@ -140,7 +140,7 @@ export default function DisplayMovie( { movie, tv, people } : any) {
     );
     return (
         <>
-            <div className="grid p-2 sm:grid-cols-1 md:grid-cols-1 mt-28">
+            <div className="grid p-6 sm:grid-cols-1 md:grid-cols-1 mt-28">
                 <div className="col-span-2 sm:ml-0 md:ml-5 lg:ml-10" ref={parent}>
                     <div className="group cursor-pointer relative p-2 grid grid-cols-1 text-left items-stretch">
                         <span>

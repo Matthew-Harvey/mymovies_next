@@ -7,7 +7,7 @@ export default function DisplayMovie() {
     const [show, setShow] = useState(false);
     return (
         <>
-            <div className="bg-gray-100 overflow-y-hidden fixed top-0 z-50 w-full">
+            <div className="bg-gray-100 overflow-y-hidden fixed top-0 z-50 w-full shadow-lg">
                 <nav className="w-full">
                     <div className="container mx-auto px-6 py-3 flex items-center justify-between">
                         <a href="/">
